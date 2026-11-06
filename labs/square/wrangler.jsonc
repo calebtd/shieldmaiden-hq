@@ -21,7 +21,7 @@
     {
       "binding": "DB",
       "database_name": "shieldmaiden-square-lab",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "3c3fb557-b1f7-47ae-bbcc-51208d584a4b",
       "migrations_dir": "migrations",
     },
   ],

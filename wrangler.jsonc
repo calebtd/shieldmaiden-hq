@@ -41,7 +41,7 @@
         {
           "binding": "DB",
           "database_name": "shieldmaiden-dev",
-          "database_id": "00000000-0000-0000-0000-000000000000",
+          "database_id": "b4b340ad-68f8-48f4-8489-6561b821d403",
           "migrations_dir": "migrations",
         },
       ],
@@ -62,7 +62,7 @@
         {
           "binding": "DB",
           "database_name": "shieldmaiden-demo",
-          "database_id": "00000000-0000-0000-0000-000000000000",
+          "database_id": "00a0dc62-e69b-4256-a540-f438ece2a1f4",
           "migrations_dir": "migrations",
         },
       ],
@@ -81,7 +81,7 @@
         {
           "binding": "DB",
           "database_name": "shieldmaiden-prod",
-          "database_id": "00000000-0000-0000-0000-000000000000",
+          "database_id": "079fdfb6-fd5b-4656-84e7-15100f3d541a",
           "migrations_dir": "migrations",
         },
       ],
