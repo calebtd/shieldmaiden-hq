@@ -20,6 +20,8 @@
     "OWNER_EMAILS": "owner@example.com",
     "ACCESS_TEAM_DOMAIN": "",
     "ACCESS_AUD": "",
+    "CF_ACCOUNT_ID": "",
+    "ACCESS_STAFF_POLICY_ID": "",
   },
   "d1_databases": [
     {
@@ -32,6 +34,8 @@
   "env": {
     "dev": {
       "name": "shieldmaiden-hq-dev",
+      // Hourly: re-check the Cloudflare sign-in list matches the staff list.
+      "triggers": { "crons": ["17 * * * *"] },
       "routes": [{ "pattern": "dev.shieldmaiden.hair", "custom_domain": true }],
       "vars": {
         "APP_ENV": "dev",
@@ -39,6 +43,8 @@
         "OWNER_EMAILS": "smbraidin@gmail.com,calebdillenbeck@gmail.com",
         "ACCESS_TEAM_DOMAIN": "calebdillenbeck.cloudflareaccess.com",
         "ACCESS_AUD": "ebbc293bde592e2f00f98a32a813adf49abcf14eb316ebb199016e12e242137b",
+        "CF_ACCOUNT_ID": "76433d69bd581192e62cf8fa2c58ec37",
+        "ACCESS_STAFF_POLICY_ID": "5981ddfc-5cf5-4185-8d8f-ebf36f6e2ac9",
       },
       "d1_databases": [
         {
@@ -60,6 +66,8 @@
         "OWNER_EMAILS": "",
         "ACCESS_TEAM_DOMAIN": "",
         "ACCESS_AUD": "",
+        "CF_ACCOUNT_ID": "",
+        "ACCESS_STAFF_POLICY_ID": "",
       },
       "d1_databases": [
         {
@@ -72,6 +80,8 @@
     },
     "production": {
       "name": "shieldmaiden-hq",
+      // Hourly: re-check the Cloudflare sign-in list matches the staff list.
+      "triggers": { "crons": ["17 * * * *"] },
       "routes": [{ "pattern": "app.shieldmaiden.hair", "custom_domain": true }],
       "vars": {
         "APP_ENV": "production",
@@ -79,6 +89,8 @@
         "OWNER_EMAILS": "smbraidin@gmail.com",
         "ACCESS_TEAM_DOMAIN": "calebdillenbeck.cloudflareaccess.com",
         "ACCESS_AUD": "3c8ff6423d233db5db04a24e946cfe5bd93e605bb4ccd19752cdf85d1242bf78",
+        "CF_ACCOUNT_ID": "76433d69bd581192e62cf8fa2c58ec37",
+        "ACCESS_STAFF_POLICY_ID": "89c31c17-2d00-44ff-90a1-71b9e5a55af0",
       },
       "d1_databases": [
         {

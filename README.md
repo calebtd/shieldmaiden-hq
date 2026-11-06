@@ -24,10 +24,15 @@ Each site has its own database, so test and demo data never mix with real money.
 
 ## Day to day
 
-**Adding a staff member.** Two places, for now:
+**Adding a staff member.** Staff → **Add someone**, with the email they'll sign in with.
+That's it: the server adds their email to the site's Cloudflare sign-in list (and removes it
+when they're turned off). The **Sign-in list** panel on the Staff screen shows whether the
+list is up to date. Owner emails in `wrangler.jsonc` are always on the list.
 
-1. In the app: **Staff → Add someone**, with the email they'll sign in with.
-2. In Cloudflare: **Zero Trust → Access → Policies → Shieldmaiden HQ staff** → add their email.
+This needs a Worker secret `ACCESS_ADMIN_TOKEN` on `shieldmaiden-hq-dev` and
+`shieldmaiden-hq`: a Cloudflare API token with only **Account → Access: Apps and Policies →
+Edit**. The server only ever edits the one policy named in `ACCESS_STAFF_POLICY_ID`
+("Shieldmaiden HQ dev staff" on dev, "Shieldmaiden HQ staff" on production).
 
 **Signing out / switching people on a shared device.** Tap **Sign out** in the top bar. The
 device forgets its local data, and the next person signs in with their own email code.
@@ -78,8 +83,9 @@ For reference, in case anything needs rebuilding:
 - **D1 databases:** `shieldmaiden-dev`, `shieldmaiden-demo`, `shieldmaiden-prod`,
   `shieldmaiden-square-lab`. IDs are in `wrangler.jsonc`.
 - **Access** (team `calebdillenbeck.cloudflareaccess.com`): apps "Shieldmaiden HQ",
-  "Shieldmaiden HQ (dev)", "Shieldmaiden Square Lab"; policies "Shieldmaiden HQ staff" and
-  "Shieldmaiden HQ admins (dev + Square Lab)". Each app's AUD tag is in `wrangler.jsonc`, and
+  "Shieldmaiden HQ (dev)", "Shieldmaiden Square Lab"; policies "Shieldmaiden HQ staff"
+  (production), "Shieldmaiden HQ dev staff" (dev), and "Shieldmaiden HQ admins (dev + Square
+  Lab)" (Square Lab only). Each app's AUD tag is in `wrangler.jsonc`, and
   the server checks every request's sign-in against it.
 - **GitHub secrets:** `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`.
 - **Owners** are set by `OWNER_EMAILS` in `wrangler.jsonc`: the first sign-in from one of
