@@ -18,6 +18,7 @@ export default tseslint.config(
       ".wrangler/",
       "node_modules/",
       "src/server/worker-configuration.d.ts",
+      "labs/*/src/worker-configuration.d.ts",
       "dev-dist/",
     ],
   },

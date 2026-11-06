@@ -11,7 +11,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "cf-typegen": "wrangler types --strict-vars=false src/server/worker-configuration.d.ts",
-    "typecheck": "tsc -p tsconfig.client.json && tsc -p tsconfig.server.json && tsc -p tsconfig.node.json",
+    "typecheck": "tsc -p tsconfig.client.json && tsc -p tsconfig.server.json && tsc -p tsconfig.node.json && tsc -p tsconfig.labs.json",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -20,8 +20,10 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
     "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test",
-    "postinstall": "wrangler types --strict-vars=false src/server/worker-configuration.d.ts >/dev/null",
-    "test:e2e": "playwright test"
+    "postinstall": "wrangler types --strict-vars=false src/server/worker-configuration.d.ts >/dev/null && wrangler types --strict-vars=false --config labs/square/wrangler.jsonc labs/square/src/worker-configuration.d.ts >/dev/null",
+    "test:e2e": "playwright test",
+    "lab:square:dev": "wrangler d1 migrations apply DB --local --config labs/square/wrangler.jsonc && wrangler dev --config labs/square/wrangler.jsonc",
+    "lab:square:deploy": "wrangler d1 migrations apply DB --remote --config labs/square/wrangler.jsonc && wrangler deploy --config labs/square/wrangler.jsonc"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.67.0",

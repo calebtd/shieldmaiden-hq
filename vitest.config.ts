@@ -19,6 +19,7 @@ export default defineConfig({
             "src/domain/**/*.test.ts",
             "src/shared/**/*.test.ts",
             "src/client/**/*.test.ts",
+            "labs/**/*.test.ts",
           ],
           setupFiles: ["fake-indexeddb/auto"],
         },
