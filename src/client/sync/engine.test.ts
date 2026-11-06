@@ -3,7 +3,7 @@ import type { Staff } from "@shared/entities/staff";
 import { newId } from "@shared/ids";
 import { mutations } from "@shared/mutations";
 import { definedOnly } from "@shared/objects";
-import type { MutationEnvelope, PullResponse, PushResponse } from "@shared/sync";
+import type { Me, MutationEnvelope, PullResponse, PushResponse } from "@shared/sync";
 import { LocalDb } from "../db/local";
 import { SyncEngine } from "./engine";
 import { OfflineError, type SyncTransport } from "./transport";
@@ -17,6 +17,7 @@ class FakeServer implements SyncTransport {
   applied = new Set<string>();
   rejectAll = false;
   pushes = 0;
+  me: Me = { staffId: newId(), name: "Astrid", role: "owner" };
 
   push(envelopes: MutationEnvelope[]): Promise<PushResponse> {
     if (!this.online) return Promise.reject(new OfflineError("offline"));
@@ -50,6 +51,7 @@ class FakeServer implements SyncTransport {
   pull(cursor: number): Promise<PullResponse> {
     if (!this.online) return Promise.reject(new OfflineError("offline"));
     return Promise.resolve({
+      me: this.me,
       epoch: this.epoch,
       cursor: this.version,
       changes: { staff: [...this.staff.values()].filter((s) => s.version > cursor) },
@@ -164,5 +166,38 @@ describe("SyncEngine", () => {
 
     await engine.sync();
     expect(engine.getState()).toMatchObject({ status: "idle", pending: 0 });
+  });
+
+  it("starts over when the login now belongs to someone else", async () => {
+    await engine.mutate("staff.create", person("Seen by the old person"));
+    await engine.sync();
+    // Another device removes that row; an incremental pull wouldn't notice, a rebuild does.
+    server.staff.clear();
+    server.version++;
+    server.me = { staffId: newId(), name: "iPad", role: "checkout" };
+
+    await engine.sync();
+    expect(await db.staff.count()).toBe(0);
+    expect((await db.meta.get("me"))?.value).toMatchObject({ name: "iPad", role: "checkout" });
+  });
+
+  it("starts over when this person's role changes", async () => {
+    await engine.mutate("staff.create", person("Someone"));
+    await engine.sync();
+    server.staff.clear();
+    server.me = { ...server.me, role: "braider" };
+
+    await engine.sync();
+    expect(await db.staff.count()).toBe(0);
+  });
+
+  it("keeps data when only the name changes", async () => {
+    await engine.mutate("staff.create", person("Kept"));
+    await engine.sync();
+    server.me = { ...server.me, name: "Astrid R." };
+
+    await engine.sync();
+    expect(await db.staff.count()).toBe(1);
+    expect((await db.meta.get("me"))?.value).toMatchObject({ name: "Astrid R." });
   });
 });

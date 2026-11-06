@@ -1,21 +1,26 @@
-/* Design tokens carried over from the original waitlist app:
-   green-grey neutrals, deep teal accent, IBM Plex. */
+/* Shieldmaiden palette: timberwolf #dad7cd, sage #a3b18a, fern #588157,
+   hunter #3a5a40, brunswick #344e41. Sage is too light for text on light
+   backgrounds, so it's used for tints there and as the accent in dark mode. */
 :root {
-  --bg: #edf1ef;
-  --surface: #fafcfb;
-  --ink: #16201d;
-  --muted: #586763;
-  --line: #d2dbd8;
+  --bg: #ecebe4;
+  --surface: #f7f6f1;
+  --ink: #1f2e26;
+  --muted: #56655a;
+  --line: #d3d1c5;
   --field: #ffffff;
-  --accent: #0b6b5c;
+  --accent: #3a5a40;
   --accent-ink: #ffffff;
-  --accent-soft: #dcefea;
-  --warn: #8a5a00;
-  --warn-soft: #f6ebd4;
-  --info: #234f9c;
-  --info-soft: #e0e9f8;
-  --danger: #a3301f;
-  --danger-soft: #f7e0db;
+  --accent-soft: #dde3d2;
+  --focus: #588157;
+  --topbar-bg: #344e41;
+  --topbar-ink: #dad7cd;
+  --topbar-active: #3a5a40;
+  --warn: #7a5300;
+  --warn-soft: #f3e6c8;
+  --info: #2d4f86;
+  --info-soft: #dfe7f3;
+  --danger: #9b2c1c;
+  --danger-soft: #f6ddd6;
   --font-ui: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --radius: 10px;
@@ -23,15 +28,19 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0e1513;
-    --surface: #16201e;
-    --ink: #e6efec;
-    --muted: #94a5a0;
-    --line: #2a3a36;
-    --field: #0f1816;
-    --accent: #3cc2a7;
-    --accent-ink: #04241e;
-    --accent-soft: #17332d;
+    --bg: #18231d;
+    --surface: #213028;
+    --ink: #ebe9e1;
+    --muted: #a9b59d;
+    --line: #344e41;
+    --field: #1b2821;
+    --accent: #a3b18a;
+    --accent-ink: #18231d;
+    --accent-soft: #2d4234;
+    --focus: #a3b18a;
+    --topbar-bg: #1d2b23;
+    --topbar-ink: #dad7cd;
+    --topbar-active: #344e41;
     --warn: #e2b866;
     --warn-soft: #3a2e14;
     --info: #8db4f2;
@@ -138,7 +147,7 @@ textarea {
   width: 100%;
 }
 :focus-visible {
-  outline: 3px solid var(--accent);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 

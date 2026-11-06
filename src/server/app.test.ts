@@ -162,6 +162,12 @@ describe("sync", () => {
     });
   });
 
+  it("tells the device who it is on every sync, including a new name", async () => {
+    const { staffId } = await owner.json<{ staffId: string }>("/api/session");
+    await owner.mutate("staff.update", { id: staffId, name: "Astrid the Owner" });
+    expect((await owner.pull()).me).toEqual({ staffId, name: "Astrid the Owner", role: "owner" });
+  });
+
   it("lets an owner turn off another owner", async () => {
     const id = newId();
     await owner.mutate("staff.create", {

@@ -22,7 +22,7 @@ const ENV_LABEL = { local: "Local", dev: "Dev", demo: "Demo", production: null }
 
 export function Layout({ children }: { children: ReactNode }) {
   const session = useSession();
-  const { switchPerson } = useSessionContext();
+  const { signOut } = useSessionContext();
   const envLabel = ENV_LABEL[session.appEnv];
 
   return (
@@ -45,11 +45,9 @@ export function Layout({ children }: { children: ReactNode }) {
             <span className="small muted">
               {session.name} · {ROLE_LABELS[session.role]}
             </span>
-            {session.authMode !== "access" && (
-              <button type="button" className="ghost compact" onClick={() => void switchPerson()}>
-                Switch
-              </button>
-            )}
+            <button type="button" className="ghost compact" onClick={() => void signOut()}>
+              {session.authMode === "access" ? "Sign out" : "Switch person"}
+            </button>
           </div>
         </div>
       </header>

@@ -36,8 +36,17 @@ export const pushResponseSchema = z.object({
 });
 export type PushResponse = z.infer<typeof pushResponseSchema>;
 
+/** Who the server says is signed in, as of this sync. */
+export const meSchema = z.object({ staffId: idSchema, name: z.string(), role: roleSchema });
+export type Me = z.infer<typeof meSchema>;
+
 /** Everything that changed after `cursor`. Add each new synced table here. */
 export const pullResponseSchema = z.object({
+  /**
+   * Re-confirmed on every sync, so a rename or role change shows up right away, and a
+   * device whose login now belongs to someone else notices and starts over.
+   */
+  me: meSchema,
   /** Changes when the server's data is wiped; the device must then start over. */
   epoch: z.string(),
   cursor: z.number().int(),

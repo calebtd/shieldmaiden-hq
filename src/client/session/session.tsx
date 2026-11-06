@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { sessionSchema, type Session } from "@shared/sync";
+import { liveQuery } from "dexie";
+import { meSchema, sessionSchema, type Session } from "@shared/sync";
 import { useDb, useSyncEngine } from "../app/sync";
 import type { LocalDb } from "../db/local";
 import type { SyncEngine } from "../sync/engine";
@@ -15,8 +16,11 @@ export type SessionState =
 interface SessionContextValue {
   state: SessionState;
   reload: () => Promise<void>;
-  /** Demo/local only: sign out of the chosen persona. */
-  switchPerson: () => Promise<void>;
+  /**
+   * Leaves this device signed out and empty, ready for someone else. In demo/local it
+   * goes back to the person picker; with Cloudflare Access it ends the sign-in.
+   */
+  signOut: () => Promise<void>;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -55,11 +59,36 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setState(await loadSession(db, engine));
   }, [db, engine]);
 
-  const switchPerson = useCallback(async () => {
-    await apiFetch("/api/personas/clear", { method: "POST" });
+  const signOut = useCallback(async () => {
+    const usesAccess = state.kind === "ready" && state.session.authMode === "access";
+    if (!usesAccess) await apiFetch("/api/personas/clear", { method: "POST" }).catch(() => null);
     await engine.resetLocal();
-    setState({ kind: "pick-persona" });
-  }, [engine]);
+    if (usesAccess) {
+      // Cloudflare Access's own sign-out page; it sends the person back to sign in.
+      window.location.href = "/cdn-cgi/access/logout";
+    } else {
+      setState({ kind: "pick-persona" });
+    }
+  }, [engine, state]);
+
+  // Each sync re-confirms who this is; keep the name and role in step with it.
+  useEffect(() => {
+    const sub = liveQuery(() => db.meta.get("me")).subscribe((row) => {
+      const me = meSchema.safeParse(row?.value);
+      if (!me.success) return;
+      setState((prev) => {
+        if (prev.kind !== "ready") return prev;
+        const s = prev.session;
+        if (s.staffId === me.data.staffId && s.name === me.data.name && s.role === me.data.role) {
+          return prev;
+        }
+        const session = { ...s, ...me.data };
+        void db.meta.put({ key: "session", value: session });
+        return { ...prev, session };
+      });
+    });
+    return () => sub.unsubscribe();
+  }, [db]);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,9 +101,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [db, engine]);
 
   return (
-    <SessionContext.Provider value={{ state, reload, switchPerson }}>
-      {children}
-    </SessionContext.Provider>
+    <SessionContext.Provider value={{ state, reload, signOut }}>{children}</SessionContext.Provider>
   );
 }
 

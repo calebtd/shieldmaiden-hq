@@ -27,3 +27,22 @@ test("an owner can rename staff but can't turn themselves off", async ({ page })
   await expect(renamed.getByText("Not synced yet")).toHaveCount(0);
   await expect(page.getByText("All saved")).toBeVisible();
 });
+
+test("turning someone else off saves and keeps syncing", async ({ page }) => {
+  const name = `Savanah ${Math.random().toString(36).slice(2, 7)}`;
+  await page.goto("/");
+  await page.getByRole("button", { name: /Astrid/ }).click();
+  await page.getByRole("link", { name: "Staff" }).click();
+  await page.getByLabel("Name").fill(name);
+  await page.getByRole("button", { name: "Add to staff" }).click();
+
+  const row = page.getByRole("article").filter({ hasText: name });
+  await expect(row.getByText("Not synced yet")).toHaveCount(0);
+  await row.getByRole("button", { name: "Turn off" }).click();
+
+  await expect(row.getByRole("button", { name: "Turn back on" })).toBeVisible();
+  await expect(page.getByText("All saved")).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("region", { name: "Turned off" }).getByText(name)).toBeVisible();
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});
