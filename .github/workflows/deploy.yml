@@ -1,0 +1,44 @@
+name: Deploy
+
+# dev.shieldmaiden.hair: automatically, after CI passes on main.
+# demo / app.shieldmaiden.hair: run this workflow by hand ("Run workflow") and pick a target.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Where to deploy
+        type: choice
+        options: [demo, production]
+        required: true
+
+jobs:
+  deploy:
+    if: >-
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.target || 'dev' }}
+    concurrency: deploy-${{ inputs.target || 'dev' }}
+    env:
+      CLOUDFLARE_ENV: ${{ inputs.target || 'dev' }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Database changes go first; migrations only ever add, so the old code keeps working.
+      - run: pnpm wrangler d1 migrations apply DB --env "$CLOUDFLARE_ENV" --remote
+      - run: pnpm build
+      - run: pnpm wrangler deploy

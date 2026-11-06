@@ -1,0 +1,90 @@
+// Cloudflare Worker config. One Worker per environment, each with its own D1 database.
+// Top level = local development. Deploy with CLOUDFLARE_ENV=dev|demo|production.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "shieldmaiden-hq",
+  "main": "src/server/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"],
+  },
+  "observability": { "enabled": true },
+  "vars": {
+    "APP_ENV": "local",
+    "AUTH_MODE": "local",
+    "OWNER_EMAILS": "owner@example.com",
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": "",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "shieldmaiden-local",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "env": {
+    "dev": {
+      "name": "shieldmaiden-hq-dev",
+      "routes": [{ "pattern": "dev.shieldmaiden.hair", "custom_domain": true }],
+      "vars": {
+        "APP_ENV": "dev",
+        "AUTH_MODE": "access",
+        "OWNER_EMAILS": "calebdillenbeck@icloud.com",
+        "ACCESS_TEAM_DOMAIN": "",
+        "ACCESS_AUD": "",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "shieldmaiden-dev",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations",
+        },
+      ],
+    },
+    "demo": {
+      "name": "shieldmaiden-hq-demo",
+      // Nightly reset to fresh sample data (09:00 UTC ≈ 3–4am US Central).
+      "triggers": { "crons": ["0 9 * * *"] },
+      "routes": [{ "pattern": "demo.shieldmaiden.hair", "custom_domain": true }],
+      "vars": {
+        "APP_ENV": "demo",
+        "AUTH_MODE": "demo",
+        "OWNER_EMAILS": "",
+        "ACCESS_TEAM_DOMAIN": "",
+        "ACCESS_AUD": "",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "shieldmaiden-demo",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations",
+        },
+      ],
+    },
+    "production": {
+      "name": "shieldmaiden-hq",
+      "routes": [{ "pattern": "app.shieldmaiden.hair", "custom_domain": true }],
+      "vars": {
+        "APP_ENV": "production",
+        "AUTH_MODE": "access",
+        "OWNER_EMAILS": "calebdillenbeck@icloud.com",
+        "ACCESS_TEAM_DOMAIN": "",
+        "ACCESS_AUD": "",
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "shieldmaiden-prod",
+          "database_id": "00000000-0000-0000-0000-000000000000",
+          "migrations_dir": "migrations",
+        },
+      ],
+    },
+  },
+}
