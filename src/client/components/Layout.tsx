@@ -3,6 +3,7 @@ import { NavLink } from "react-router";
 import { ROLE_LABELS, type Role } from "@shared/roles";
 import { useSession, useSessionContext } from "../session/session";
 import { SyncBadge } from "./SyncBadge";
+import { SyncProblem } from "./SyncProblem";
 import "./Layout.css";
 
 interface NavItem {
@@ -52,7 +53,10 @@ export function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="page">{children}</main>
+      <main className="page">
+        <SyncProblem />
+        {children}
+      </main>
     </>
   );
 }

@@ -6,11 +6,7 @@ import { ROLE_LABELS, ROLES, type Role } from "@shared/roles";
 import { useDb, useSyncEngine } from "../../app/sync";
 import { fieldErrors } from "../../components/forms";
 import { RejectedChanges } from "../../components/RejectedChanges";
-
-function formatPhone(digits: string | null): string {
-  if (!digits || digits.length !== 10) return digits ?? "";
-  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-}
+import { StaffRow } from "./StaffRow";
 
 export function StaffPage() {
   const db = useDb();
@@ -117,58 +113,5 @@ function AddStaffForm() {
         </button>
       </div>
     </form>
-  );
-}
-
-function StaffRow({ person }: { person: Staff }) {
-  const engine = useSyncEngine();
-  const [error, setError] = useState<string | null>(null);
-
-  async function update(changes: { role?: Role; active?: boolean }) {
-    try {
-      await engine.mutate("staff.update", { id: person.id, ...changes });
-      setError(null);
-    } catch (err) {
-      setError(fieldErrors(err)._form ?? "Couldn't save that change.");
-    }
-  }
-
-  return (
-    <article className="panel" style={{ gap: 8 }}>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <div className="row">
-          <strong>{person.name}</strong>
-          <span className="chip">{ROLE_LABELS[person.role]}</span>
-          {person.version === 0 && <span className="chip warn">Not synced yet</span>}
-        </div>
-        <div className="row">
-          <select
-            aria-label={`Role for ${person.name}`}
-            value={person.role}
-            onChange={(e) => void update({ role: e.target.value as Role })}
-            style={{ width: "auto", minHeight: 40 }}
-          >
-            {ROLES.map((r) => (
-              <option key={r} value={r}>
-                {ROLE_LABELS[r]}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className={person.active ? "danger compact" : "compact"}
-            onClick={() => void update({ active: !person.active })}
-          >
-            {person.active ? "Turn off" : "Turn back on"}
-          </button>
-        </div>
-      </div>
-      {(person.email || person.phone) && (
-        <p className="small muted">
-          {[person.email, formatPhone(person.phone)].filter(Boolean).join(" · ")}
-        </p>
-      )}
-      {error && <p className="error">{error}</p>}
-    </article>
   );
 }
