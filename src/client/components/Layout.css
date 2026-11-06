@@ -1,6 +1,6 @@
 .topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
+  background: var(--topbar-bg);
+  color: var(--topbar-ink);
   padding-top: env(safe-area-inset-top);
   position: sticky;
   top: 0;
@@ -27,7 +27,8 @@
   overflow-x: auto;
 }
 .nav a {
-  color: var(--muted);
+  color: var(--topbar-ink);
+  opacity: 0.85;
   text-decoration: none;
   padding: 8px 12px;
   border-radius: 8px;
@@ -35,8 +36,13 @@
   white-space: nowrap;
 }
 .nav a.active {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: var(--topbar-active);
+  color: #fff;
+  opacity: 1;
+}
+.topbar .who .muted,
+.topbar .ghost {
+  color: var(--topbar-ink);
 }
 .who {
   display: flex;

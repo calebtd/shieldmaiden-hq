@@ -21,7 +21,8 @@ export interface Rejection {
 }
 
 export interface MetaRow {
-  key: "cursor" | "epoch" | "session";
+  /** session: as of sign-in. me: who the server confirmed on the latest sync. */
+  key: "cursor" | "epoch" | "session" | "me";
   value: unknown;
 }
 

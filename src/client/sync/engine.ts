@@ -1,6 +1,6 @@
 import { newId } from "@shared/ids";
 import { mutations, type MutationInput, type MutationName } from "@shared/mutations";
-import type { PullResponse } from "@shared/sync";
+import { meSchema, type PullResponse } from "@shared/sync";
 import { SYNCED_TABLES, type LocalDb, type OutboxItem, type Rejection } from "../db/local";
 import { appliers } from "../mutations/appliers";
 import { OfflineError, SignedOutError, type SyncTransport } from "./transport";
@@ -175,11 +175,20 @@ export class SyncEngine {
   private async pullChanges(): Promise<void> {
     const cursor = ((await this.db.meta.get("cursor"))?.value as number | undefined) ?? 0;
     const storedEpoch = (await this.db.meta.get("epoch"))?.value as string | undefined;
+    const storedMe = meSchema.safeParse((await this.db.meta.get("me"))?.value);
     const response = await this.transport.pull(cursor);
 
     if (storedEpoch !== undefined && storedEpoch !== response.epoch) {
       // The server's data was reset. Queued changes refer to data that no longer exists.
       await this.db.outbox.clear();
+      await this.rebuild();
+      return;
+    }
+    if (
+      storedMe.success &&
+      (storedMe.data.staffId !== response.me.staffId || storedMe.data.role !== response.me.role)
+    ) {
+      // A different person, or a new role: what this device may see has changed.
       await this.rebuild();
       return;
     }
@@ -204,6 +213,7 @@ export class SyncEngine {
         await this.db.meta.bulkPut([
           { key: "cursor", value: response.cursor },
           { key: "epoch", value: response.epoch },
+          { key: "me", value: response.me },
         ]);
         // Re-apply changes still waiting to be sent, so they stay visible.
         const queued = await this.db.outbox.orderBy("seq").toArray();

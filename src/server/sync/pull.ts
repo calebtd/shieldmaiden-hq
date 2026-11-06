@@ -21,6 +21,7 @@ export async function pull(db: Db, user: AuthedUser, cursor: number): Promise<Pu
 
   const isOwner = user.role === "owner";
   return {
+    me: { staffId: user.staffId, name: user.name, role: user.role },
     epoch,
     cursor: counter,
     changes: {

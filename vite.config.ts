@@ -24,8 +24,8 @@ export default defineConfig({
         name: "Shieldmaiden HQ",
         short_name: "Shieldmaiden",
         description: "Waitlist, tickets, time, and payouts for Shieldmaiden Braidin'",
-        theme_color: "#0b6b5c",
-        background_color: "#edf1ef",
+        theme_color: "#344e41",
+        background_color: "#dad7cd",
         display: "standalone",
         start_url: "/",
         icons: [
