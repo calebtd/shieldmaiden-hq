@@ -6,6 +6,7 @@ import { ROLE_LABELS, ROLES, type Role } from "@shared/roles";
 import { useDb, useSyncEngine } from "../../app/sync";
 import { fieldErrors } from "../../components/forms";
 import { RejectedChanges } from "../../components/RejectedChanges";
+import { AccessListPanel } from "./AccessListPanel";
 import { StaffRow } from "./StaffRow";
 
 export function StaffPage() {
@@ -19,6 +20,7 @@ export function StaffPage() {
       <h1>Staff</h1>
       <RejectedChanges />
       <AddStaffForm />
+      <AccessListPanel />
       <section className="stack" aria-label="Active staff">
         <h2>Active ({active.length})</h2>
         {staff && active.length === 0 && <p className="empty">No one yet. Add your team above.</p>}

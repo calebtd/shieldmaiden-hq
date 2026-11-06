@@ -1,14 +1,17 @@
 import { and, asc, eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { createMiddleware } from "hono/factory";
 import { deleteCookie, setCookie } from "hono/cookie";
 import { z } from "zod";
 import { idSchema } from "@shared/ids";
+import type { AccessListResponse } from "@shared/accessList";
 import { pushRequestSchema, type Persona, type Session } from "@shared/sync";
 import { PERSONA_COOKIE, requireUser } from "./auth";
 import { readConfig } from "./config";
 import { createDb, DomainError, type AppEnv } from "./context";
 import { staff } from "./db/schema";
 import { seedDemoDataIfEmpty } from "./demo";
+import { readAccessListStatus, syncAccessList } from "./integrations/accessList";
 import { pull } from "./sync/pull";
 import { push } from "./sync/push";
 
@@ -96,8 +99,41 @@ app.get("/session", (c) => {
 app.post("/sync/push", async (c) => {
   const body = pushRequestSchema.safeParse(await c.req.json().catch(() => null));
   if (!body.success) throw new DomainError("Malformed sync request.");
-  return c.json(await push(c.var.db, c.var.user, body.data.mutations));
+  const { mutations } = body.data;
+  const response = await push(c.var.db, c.var.user, mutations);
+
+  // Staff changes update the Cloudflare sign-in list, after the response is sent.
+  const applied = new Set(response.results.filter((r) => r.status === "applied").map((r) => r.id));
+  const staffChanged = mutations.some((m) => applied.has(m.id) && m.name.startsWith("staff."));
+  if (staffChanged && c.var.config.accessList) {
+    c.executionCtx.waitUntil(syncAccessList(c.var.db, c.var.config));
+  }
+  return c.json(response);
 });
+
+// ---- Owners: the Cloudflare sign-in list mirrored from staff ---------------------------
+
+const requireOwner = createMiddleware<AppEnv>(async (c, next) => {
+  if (c.var.user.role !== "owner") throw new DomainError("Only owners can do that.", 403);
+  await next();
+});
+
+app.use("/access-list/*", requireUser, requireOwner);
+app.use("/access-list", requireUser, requireOwner);
+
+app.get("/access-list", async (c) =>
+  c.json<AccessListResponse>({
+    managed: c.var.config.accessList !== null,
+    status: await readAccessListStatus(c.var.db),
+  }),
+);
+
+app.post("/access-list/sync", async (c) =>
+  c.json<AccessListResponse>({
+    managed: c.var.config.accessList !== null,
+    status: await syncAccessList(c.var.db, c.var.config),
+  }),
+);
 
 app.get("/sync/pull", async (c) => {
   const cursor = Number(c.req.query("cursor") ?? "0");
