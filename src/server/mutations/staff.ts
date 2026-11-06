@@ -35,9 +35,17 @@ export const createStaff: MutationHandler<"staff.create"> = async ({ db, args, n
   ];
 };
 
-export const updateStaff: MutationHandler<"staff.update"> = async ({ db, args, now }) => {
+export const updateStaff: MutationHandler<"staff.update"> = async ({ db, user, args, now }) => {
   const current = await db.select().from(staff).where(eq(staff.id, args.id)).get();
   if (!current) throw new DomainError("That staff member doesn't exist.", 404);
+
+  // Nobody can lock themselves out; another owner has to make these changes.
+  if (args.id === user.staffId) {
+    if (args.active === false) throw new DomainError("You can't turn off your own account.", 409);
+    if (args.role !== undefined && args.role !== current.role) {
+      throw new DomainError("You can't change your own role.", 409);
+    }
+  }
   if (args.email !== undefined) await assertEmailFree(db, args.email, args.id);
 
   const losesOwner =

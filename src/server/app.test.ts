@@ -130,10 +130,49 @@ describe("sync", () => {
     expect((await make("Second")).results[0]).toMatchObject({ status: "rejected" });
   });
 
-  it("never removes the last active owner", async () => {
-    const session = await owner.json<{ staffId: string }>("/api/session");
-    const { results } = await owner.mutate("staff.update", { id: session.staffId, active: false });
-    expect(results[0]).toHaveProperty("error", "There must always be at least one active owner.");
+  it("doesn't let anyone turn off their own account or change their own role", async () => {
+    const { staffId } = await owner.json<{ staffId: string }>("/api/session");
+    const off = await owner.mutate("staff.update", { id: staffId, active: false });
+    expect(off.results[0]).toHaveProperty("error", "You can't turn off your own account.");
+    const demote = await owner.mutate("staff.update", { id: staffId, role: "braider" });
+    expect(demote.results[0]).toHaveProperty("error", "You can't change your own role.");
+  });
+
+  it("lets an owner rename someone and change their contact details", async () => {
+    const id = newId();
+    await owner.mutate("staff.create", {
+      id,
+      name: "Becca",
+      role: "braider",
+      email: "",
+      phone: "",
+    });
+    const { results } = await owner.mutate("staff.update", {
+      id,
+      name: "Becca R.",
+      email: "becca@example.com",
+      phone: "555 222 3333",
+    });
+    expect(results[0]?.status).toBe("applied");
+    const row = (await owner.pull()).changes.staff.find((s) => s.id === id);
+    expect(row).toMatchObject({
+      name: "Becca R.",
+      email: "becca@example.com",
+      phone: "5552223333",
+    });
+  });
+
+  it("lets an owner turn off another owner", async () => {
+    const id = newId();
+    await owner.mutate("staff.create", {
+      id,
+      name: "Co-owner",
+      role: "owner",
+      email: "",
+      phone: "",
+    });
+    const { results } = await owner.mutate("staff.update", { id, active: false });
+    expect(results[0]?.status).toBe("applied");
   });
 
   it("rejects changes from a newer or older app version it doesn't know", async () => {
