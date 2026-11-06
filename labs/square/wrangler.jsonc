@@ -4,6 +4,9 @@
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "shieldmaiden-square-lab",
   "main": "src/index.ts",
+  // Only reachable at square-lab.shieldmaiden.hair, behind Cloudflare Access.
+  "workers_dev": false,
+  "preview_urls": false,
   "compatibility_date": "2026-10-01",
   "routes": [{ "pattern": "square-lab.shieldmaiden.hair", "custom_domain": true }],
   "observability": { "enabled": true },

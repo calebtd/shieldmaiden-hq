@@ -4,6 +4,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "shieldmaiden-hq",
   "main": "src/server/index.ts",
+  // Only reachable on our own subdomains, where Cloudflare Access sits in front.
+  "workers_dev": false,
+  "preview_urls": false,
   "compatibility_date": "2026-10-01",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
@@ -35,7 +38,7 @@
         "AUTH_MODE": "access",
         "OWNER_EMAILS": "smbraidin@gmail.com,calebdillenbeck@gmail.com",
         "ACCESS_TEAM_DOMAIN": "calebdillenbeck.cloudflareaccess.com",
-        "ACCESS_AUD": "",
+        "ACCESS_AUD": "ebbc293bde592e2f00f98a32a813adf49abcf14eb316ebb199016e12e242137b",
       },
       "d1_databases": [
         {
@@ -75,7 +78,7 @@
         "AUTH_MODE": "access",
         "OWNER_EMAILS": "smbraidin@gmail.com",
         "ACCESS_TEAM_DOMAIN": "calebdillenbeck.cloudflareaccess.com",
-        "ACCESS_AUD": "",
+        "ACCESS_AUD": "3c8ff6423d233db5db04a24e946cfe5bd93e605bb4ccd19752cdf85d1242bf78",
       },
       "d1_databases": [
         {
