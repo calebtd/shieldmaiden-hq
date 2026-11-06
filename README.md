@@ -8,12 +8,12 @@ sales tax, and payouts. It works with no signal and syncs when the connection co
 
 ## Where it runs
 
-| Site                                | What it's for             | Who can get in                                       | How it updates                         |
-| ----------------------------------- | ------------------------- | ---------------------------------------------------- | -------------------------------------- |
-| [app.shieldmaiden.hair][app]        | The real business         | Emails on the "Shieldmaiden HQ staff" Access policy  | By hand: Actions → Deploy → production |
-| [demo.shieldmaiden.hair][demo]      | Training and sales demos  | Anyone; pick a sample person. Data resets nightly    | By hand: Actions → Deploy → demo       |
-| [dev.shieldmaiden.hair][dev]        | Trying new work           | Emails on the "Shieldmaiden HQ admins" Access policy | Automatically when `main` changes      |
-| [square-lab.shieldmaiden.hair][lab] | Testing Square on devices | Admins policy                                        | By hand (see `labs/square/README.md`)  |
+| Site                                | What it's for             | Who can get in                                      | How it updates                         |
+| ----------------------------------- | ------------------------- | --------------------------------------------------- | -------------------------------------- |
+| [app.shieldmaiden.hair][app]        | The real business         | Emails on the "Shieldmaiden HQ staff" Access policy | By hand: Actions → Deploy → production |
+| [demo.shieldmaiden.hair][demo]      | Training and sales demos  | Anyone; pick a sample person. Data resets nightly   | By hand: Actions → Deploy → demo       |
+| [dev.shieldmaiden.hair][dev]        | Trying new work           | Dev staff list (managed from dev's Staff screen)    | Automatically when `main` changes      |
+| [square-lab.shieldmaiden.hair][lab] | Testing Square on devices | Admins policy                                       | By hand (see `labs/square/README.md`)  |
 
 [app]: https://app.shieldmaiden.hair
 [demo]: https://demo.shieldmaiden.hair
