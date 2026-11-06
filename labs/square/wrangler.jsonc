@@ -1,0 +1,31 @@
+// Square Lab: a small, separate Worker for testing the Square handoff on real devices.
+// Not part of the main app. Deploy: pnpm lab:square:deploy
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "shieldmaiden-square-lab",
+  "main": "src/index.ts",
+  // Only reachable at square-lab.shieldmaiden.hair, behind Cloudflare Access.
+  "workers_dev": false,
+  "preview_urls": false,
+  "compatibility_date": "2026-10-01",
+  "routes": [{ "pattern": "square-lab.shieldmaiden.hair", "custom_domain": true }],
+  "observability": { "enabled": true },
+  "vars": {
+    // From Square Developer Dashboard → your app → Credentials (production Application ID).
+    "SQUARE_APP_ID": "",
+    "SQUARE_API_BASE": "https://connect.squareup.com",
+    "SQUARE_VERSION": "2024-10-17",
+    "PUBLIC_URL": "https://square-lab.shieldmaiden.hair",
+  },
+  // Secrets (set with `wrangler secret put … --config labs/square/wrangler.jsonc`):
+  //   SQUARE_ACCESS_TOKEN          production access token (read payments/orders)
+  //   SQUARE_WEBHOOK_SIGNATURE_KEY from the webhook subscription
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "shieldmaiden-square-lab",
+      "database_id": "3c3fb557-b1f7-47ae-bbcc-51208d584a4b",
+      "migrations_dir": "migrations",
+    },
+  ],
+}

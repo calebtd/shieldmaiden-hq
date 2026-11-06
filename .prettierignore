@@ -1,0 +1,5 @@
+pnpm-lock.yaml
+migrations/meta/
+src/server/worker-configuration.d.ts
+dist/
+labs/*/src/worker-configuration.d.ts

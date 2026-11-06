@@ -1,0 +1,62 @@
+import { z } from "zod";
+import { staffSchema } from "./entities/staff";
+import { idSchema } from "./ids";
+import { roleSchema } from "./roles";
+
+/** One queued change, as sent from a device to the server. */
+export const mutationEnvelopeSchema = z.object({
+  /** Unique per mutation; lets the server ignore retries it has already applied. */
+  id: idSchema,
+  name: z.string(),
+  args: z.unknown(),
+  /** When the change was made on the device (may be long before it syncs). */
+  createdAt: z.number().int(),
+});
+export type MutationEnvelope = z.infer<typeof mutationEnvelopeSchema>;
+
+export const pushRequestSchema = z.object({
+  mutations: z.array(mutationEnvelopeSchema).max(100),
+});
+export type PushRequest = z.infer<typeof pushRequestSchema>;
+
+export const mutationResultSchema = z.discriminatedUnion("status", [
+  z.object({ id: z.string(), status: z.literal("applied") }),
+  z.object({ id: z.string(), status: z.literal("duplicate") }),
+  z.object({ id: z.string(), status: z.literal("rejected"), error: z.string() }),
+]);
+export type MutationResult = z.infer<typeof mutationResultSchema>;
+
+/**
+ * Results are in the same order as the request. If the server hit an unexpected problem
+ * it stops early: mutations without a result stay queued on the device and are retried.
+ */
+export const pushResponseSchema = z.object({
+  results: z.array(mutationResultSchema),
+  error: z.string().optional(),
+});
+export type PushResponse = z.infer<typeof pushResponseSchema>;
+
+/** Everything that changed after `cursor`. Add each new synced table here. */
+export const pullResponseSchema = z.object({
+  /** Changes when the server's data is wiped; the device must then start over. */
+  epoch: z.string(),
+  cursor: z.number().int(),
+  changes: z.object({
+    staff: z.array(staffSchema),
+  }),
+});
+export type PullResponse = z.infer<typeof pullResponseSchema>;
+export type SyncedTable = keyof PullResponse["changes"];
+
+export const sessionSchema = z.object({
+  staffId: idSchema,
+  name: z.string(),
+  role: roleSchema,
+  appEnv: z.enum(["local", "dev", "demo", "production"]),
+  /** "demo" and "local" let the person pick who to sign in as. */
+  authMode: z.enum(["access", "demo", "local"]),
+});
+export type Session = z.infer<typeof sessionSchema>;
+
+export const personaSchema = z.object({ id: idSchema, name: z.string(), role: roleSchema });
+export type Persona = z.infer<typeof personaSchema>;
