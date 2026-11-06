@@ -33,8 +33,8 @@
       "vars": {
         "APP_ENV": "dev",
         "AUTH_MODE": "access",
-        "OWNER_EMAILS": "calebdillenbeck@icloud.com",
-        "ACCESS_TEAM_DOMAIN": "",
+        "OWNER_EMAILS": "smbraidin@gmail.com,calebdillenbeck@gmail.com",
+        "ACCESS_TEAM_DOMAIN": "calebdillenbeck.cloudflareaccess.com",
         "ACCESS_AUD": "",
       },
       "d1_databases": [
@@ -73,8 +73,8 @@
       "vars": {
         "APP_ENV": "production",
         "AUTH_MODE": "access",
-        "OWNER_EMAILS": "calebdillenbeck@icloud.com",
-        "ACCESS_TEAM_DOMAIN": "",
+        "OWNER_EMAILS": "smbraidin@gmail.com",
+        "ACCESS_TEAM_DOMAIN": "calebdillenbeck.cloudflareaccess.com",
         "ACCESS_AUD": "",
       },
       "d1_databases": [

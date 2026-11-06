@@ -17,6 +17,8 @@ export default defineConfig({
     VitePWA({
       // The app shell is cached so it opens with no signal; data lives in IndexedDB.
       registerType: "autoUpdate",
+      // Cloudflare Access protects every file, so the manifest must be fetched signed in.
+      useCredentials: true,
       includeAssets: ["icon.svg", "favicon-32.png", "apple-touch-icon.png"],
       manifest: {
         name: "Shieldmaiden HQ",
