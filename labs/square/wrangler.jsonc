@@ -12,7 +12,7 @@
   "observability": { "enabled": true },
   "vars": {
     // From Square Developer Dashboard → your app → Credentials (production Application ID).
-    "SQUARE_APP_ID": "",
+    "SQUARE_APP_ID": "sq0idp-6X7HujeLkaLG4Jv1CttmKQ",
     "SQUARE_API_BASE": "https://connect.squareup.com",
     "SQUARE_VERSION": "2024-10-17",
     "PUBLIC_URL": "https://square-lab.shieldmaiden.hair",
