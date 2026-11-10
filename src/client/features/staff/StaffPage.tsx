@@ -12,6 +12,10 @@ import { StaffRow } from "./StaffRow";
 export function StaffPage() {
   const db = useDb();
   const staff = useLiveQuery(() => db.staff.orderBy("id").toArray(), [db]);
+  const pay = useLiveQuery(
+    async () => new Map((await db.payProfiles.toArray()).map((p) => [p.staffId, p])),
+    [db],
+  );
   const active = staff?.filter((s) => s.active).sort(byName) ?? [];
   const inactive = staff?.filter((s) => !s.active).sort(byName) ?? [];
 
@@ -25,14 +29,14 @@ export function StaffPage() {
         <h2>Active ({active.length})</h2>
         {staff && active.length === 0 && <p className="empty">No one yet. Add your team above.</p>}
         {active.map((s) => (
-          <StaffRow key={s.id} person={s} />
+          <StaffRow key={s.id} person={s} pay={pay?.get(s.id)} />
         ))}
       </section>
       {inactive.length > 0 && (
         <section className="stack" aria-label="Turned off">
           <h2>Turned off ({inactive.length})</h2>
           {inactive.map((s) => (
-            <StaffRow key={s.id} person={s} />
+            <StaffRow key={s.id} person={s} pay={pay?.get(s.id)} />
           ))}
         </section>
       )}

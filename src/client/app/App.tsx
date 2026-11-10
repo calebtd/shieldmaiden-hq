@@ -2,6 +2,9 @@ import { useEffect, type ReactNode } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import type { Role } from "@shared/roles";
 import { Layout } from "../components/Layout";
+import { DiscountsPage } from "../features/discounts/DiscountsPage";
+import { EventPage } from "../features/events/EventPage";
+import { EventsPage } from "../features/events/EventsPage";
 import { HomePage } from "../features/home/HomePage";
 import { PersonaPicker } from "../features/personas/PersonaPicker";
 import { StaffPage } from "../features/staff/StaffPage";
@@ -21,6 +24,30 @@ export function App() {
                 element={
                   <RequireRole roles={["owner"]}>
                     <StaffPage />
+                  </RequireRole>
+                }
+              />
+              <Route
+                path="/events"
+                element={
+                  <RequireRole roles={["owner"]}>
+                    <EventsPage />
+                  </RequireRole>
+                }
+              />
+              <Route
+                path="/events/:eventId"
+                element={
+                  <RequireRole roles={["owner"]}>
+                    <EventPage />
+                  </RequireRole>
+                }
+              />
+              <Route
+                path="/discounts"
+                element={
+                  <RequireRole roles={["owner"]}>
+                    <DiscountsPage />
                   </RequireRole>
                 }
               />

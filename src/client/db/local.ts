@@ -1,4 +1,7 @@
 import Dexie, { type EntityTable } from "dexie";
+import type { DiscountType } from "@shared/entities/discount";
+import type { EventStaff, ShowEvent } from "@shared/entities/event";
+import type { PayProfile } from "@shared/entities/pay";
 import type { Staff } from "@shared/entities/staff";
 import type { MutationName } from "@shared/mutations";
 import type { SyncedTable } from "@shared/sync";
@@ -32,6 +35,11 @@ export interface MetaRow {
  */
 export class LocalDb extends Dexie {
   staff!: EntityTable<Staff, "id">;
+  payProfiles!: EntityTable<PayProfile, "staffId">;
+  events!: EntityTable<ShowEvent, "id">;
+  /** Keyed by [eventId+staffId]. */
+  eventStaff!: Dexie.Table<EventStaff, [string, string]>;
+  discountTypes!: EntityTable<DiscountType, "id">;
   outbox!: EntityTable<OutboxItem, "seq">;
   rejections!: EntityTable<Rejection, "id">;
   meta!: EntityTable<MetaRow, "key">;
@@ -44,7 +52,23 @@ export class LocalDb extends Dexie {
       rejections: "id, at",
       meta: "key",
     });
+    // New tables: start syncing from the beginning, since an older app version may
+    // already have moved its position past rows it didn't know how to store.
+    this.version(2)
+      .stores({
+        payProfiles: "staffId",
+        events: "id, startDate",
+        eventStaff: "[eventId+staffId], eventId, staffId",
+        discountTypes: "id, active",
+      })
+      .upgrade((tx) => tx.table<MetaRow, string>("meta").delete("cursor"));
   }
 }
 
-export const SYNCED_TABLES = ["staff"] as const satisfies readonly SyncedTable[];
+export const SYNCED_TABLES = [
+  "staff",
+  "payProfiles",
+  "events",
+  "eventStaff",
+  "discountTypes",
+] as const satisfies readonly SyncedTable[];

@@ -81,6 +81,12 @@ Several Claude sessions work on this repo in parallel. Each owns one area (see "
   live identity on every sync, company palette), Staff screen mirrors the Cloudflare sign-in
   list (needs the `ACCESS_ADMIN_TOKEN` Worker secret), Square Lab (needs
   `SQUARE_ACCESS_TOKEN` secret and the callback URL registered in Square).
+- Phase 1 (in progress): pay profiles (Staff screen, one per person, last change wins), events
+  with tax rate + who's working + per-event pay overrides (Events screen), discount types
+  (Discounts screen). Domain rules in `src/domain/pay.ts` and `discounts.ts`. Pay is private:
+  non-owners only receive their own pay rows and their own event pay. Not done yet: braid menu
+  and skills (waiting on the owner's menu), snapshotting rates on lock (Phase 3 close-out),
+  bonuses (Phase 3 adjustments; the override form says so).
 - Square facts confirmed: the Point of Sale API has no sandbox; tests use small real charges.
   The callback returns an order ID (`transaction_id`) and a device ID; tips come from the
   Orders API.

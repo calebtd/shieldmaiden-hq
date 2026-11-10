@@ -1,17 +1,19 @@
 import { useState, type SyntheticEvent } from "react";
+import type { PayProfile } from "@shared/entities/pay";
 import type { Staff } from "@shared/entities/staff";
 import { ROLE_LABELS, ROLES, type Role } from "@shared/roles";
 import { useSyncEngine } from "../../app/sync";
 import { fieldErrors } from "../../components/forms";
 import { useSession } from "../../session/session";
+import { PayLine } from "./PayEditor";
 
 export function formatPhone(digits: string | null): string {
   if (!digits || digits.length !== 10) return digits ?? "";
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 }
 
-/** One staff member: their details, plus role, on/off, and an edit form. */
-export function StaffRow({ person }: { person: Staff }) {
+/** One staff member: their details, pay, role, on/off, and an edit form. */
+export function StaffRow({ person, pay }: { person: Staff; pay: PayProfile | undefined }) {
   const engine = useSyncEngine();
   const isMe = useSession().staffId === person.id;
   const [editing, setEditing] = useState(false);
@@ -70,6 +72,9 @@ export function StaffRow({ person }: { person: Staff }) {
         <p className="small muted">
           {[person.email, formatPhone(person.phone)].filter(Boolean).join(" · ")}
         </p>
+      )}
+      {person.active && (
+        <PayLine staffId={person.id} name={person.name} role={person.role} profile={pay} />
       )}
       {error && <p className="error">{error}</p>}
     </article>

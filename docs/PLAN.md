@@ -207,7 +207,7 @@ The iPad can sign in as a shared **Checkout** device.
 | Table                     | Key fields                                                                                     |
 | ------------------------- | ---------------------------------------------------------------------------------------------- |
 | `staff`                   | name, email, phone, role, active                                                               |
-| `pay_profiles`            | staff, hourly_cents, commission_bps, tip_share_bps, effective_from                             |
+| `pay_profiles`            | staff, hourly_cents, commission_bps, tip_share_bps (one per person; locked events snapshot)    |
 | `events`                  | name, city, dates, tax_rate_bps, assignment_mode, status (planning → live → closing → locked)  |
 | `event_staff`             | event, staff, optional rate overrides                                                          |
 | `menu_items`              | kind (braid / add-on / retail), name, price_cents, est_minutes, active                         |
