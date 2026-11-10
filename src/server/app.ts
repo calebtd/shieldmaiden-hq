@@ -12,6 +12,8 @@ import { createDb, DomainError, type AppEnv } from "./context";
 import { staff } from "./db/schema";
 import { seedDemoDataIfEmpty } from "./demo";
 import { readAccessListStatus, syncAccessList } from "./integrations/accessList";
+import { opsRoutes } from "./ops/routes";
+import { recordProblem } from "./ops/health";
 import { pull } from "./sync/pull";
 import { push } from "./sync/push";
 
@@ -29,6 +31,7 @@ app.onError((err, c) => {
     return c.json({ error: err.message, code: err.code }, err.status);
   }
   console.error(err);
+  c.executionCtx.waitUntil(recordProblem(c.env.DB, `${c.req.method} ${c.req.path}`, err));
   return c.json({ error: "Something went wrong on the server." }, 500);
 });
 
@@ -113,7 +116,7 @@ app.post("/sync/push", async (c) => {
 
 // ---- Owners: the Cloudflare sign-in list mirrored from staff ---------------------------
 
-const requireOwner = createMiddleware<AppEnv>(async (c, next) => {
+export const requireOwner = createMiddleware<AppEnv>(async (c, next) => {
   if (c.var.user.role !== "owner") throw new DomainError("Only owners can do that.", 403);
   await next();
 });
@@ -140,3 +143,8 @@ app.get("/sync/pull", async (c) => {
   if (!Number.isSafeInteger(cursor) || cursor < 0) throw new DomainError("Bad cursor.");
   return c.json(await pull(c.var.db, c.var.user, cursor));
 });
+
+// ---- Owners: health (backups, sign-in list, last server problem) -----------------------
+
+app.use("/ops/*", requireUser, requireOwner);
+app.route("/ops", opsRoutes);

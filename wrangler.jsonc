@@ -31,11 +31,15 @@
       "migrations_dir": "migrations",
     },
   ],
+  // Nightly database copies (see README "Backups"). Each site lists it again under its env
+  // once the shieldmaiden-backups bucket exists; locally this is a throwaway bucket.
+  "r2_buckets": [{ "binding": "BACKUPS", "bucket_name": "shieldmaiden-backups-local" }],
   "env": {
     "dev": {
       "name": "shieldmaiden-hq-dev",
       // Hourly: re-check the Cloudflare sign-in list matches the staff list.
-      "triggers": { "crons": ["17 * * * *"] },
+      // 08:41 UTC: nightly backup (must match BACKUP_CRON in src/server/ops/backup.ts).
+      "triggers": { "crons": ["17 * * * *", "41 8 * * *"] },
       "routes": [{ "pattern": "dev.shieldmaiden.hair", "custom_domain": true }],
       "vars": {
         "APP_ENV": "dev",
@@ -58,7 +62,8 @@
     "demo": {
       "name": "shieldmaiden-hq-demo",
       // Nightly reset to fresh sample data (09:00 UTC ≈ 3–4am US Central).
-      "triggers": { "crons": ["0 9 * * *"] },
+      // 08:41 UTC: nightly backup, just before the reset.
+      "triggers": { "crons": ["0 9 * * *", "41 8 * * *"] },
       "routes": [{ "pattern": "demo.shieldmaiden.hair", "custom_domain": true }],
       "vars": {
         "APP_ENV": "demo",
@@ -81,7 +86,8 @@
     "production": {
       "name": "shieldmaiden-hq",
       // Hourly: re-check the Cloudflare sign-in list matches the staff list.
-      "triggers": { "crons": ["17 * * * *"] },
+      // 08:41 UTC: nightly backup (must match BACKUP_CRON in src/server/ops/backup.ts).
+      "triggers": { "crons": ["17 * * * *", "41 8 * * *"] },
       "routes": [{ "pattern": "app.shieldmaiden.hair", "custom_domain": true }],
       "vars": {
         "APP_ENV": "production",
