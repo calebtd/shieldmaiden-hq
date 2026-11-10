@@ -13,6 +13,7 @@ const config: Config = {
   ownerEmails: ["owner@shop.test"],
   access: { teamDomain: "team.cloudflareaccess.com", audience: "aud" },
   accessList: { accountId: "acct", policyId: "pol-1", token: "t" },
+  backupKeepDays: 14,
 };
 
 /** Stands in for Cloudflare's API: one policy, records every write. */

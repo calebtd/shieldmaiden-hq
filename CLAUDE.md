@@ -87,6 +87,16 @@ Several Claude sessions work on this repo in parallel. Each owns one area (see "
   non-owners only receive their own pay rows and their own event pay. Not done yet: braid menu
   and skills (waiting on the owner's menu), snapshotting rates on lock (Phase 3 close-out),
   bonuses (Phase 3 adjustments; the override form says so).
+- Ops (`ops-golive`): nightly D1 → R2 backup job (`src/server/ops/`, cron `41 8 * * *` on every
+  site, keeps prod 30 / dev 14 / demo 3 days), owner-only **System health** panel on Home
+  (`/api/ops/health`, `/api/ops/backup`; server errors recorded in `server_meta`),
+  `docs/GO-LIVE.md`, README "Backups" and "When something goes wrong".
+- Waiting on the owner (as of 2026-11-10): `ACCESS_ADMIN_TOKEN` not yet set on
+  `shieldmaiden-hq-dev` (dev's sign-in list will not change when it is: same 3 emails);
+  demo not deployed (its D1 is migrated, Worker doesn't exist); R2 bucket
+  `shieldmaiden-backups` not created (the session token has no R2 permission). Once it
+  exists, add the `BACKUPS` r2_buckets entry to each env in `wrangler.jsonc` (only the
+  local top level has it now; a binding to a missing bucket fails the deploy).
 - Square facts confirmed: the Point of Sale API has no sandbox; tests use small real charges.
   The callback returns an order ID (`transaction_id`) and a device ID; tips come from the
   Orders API.

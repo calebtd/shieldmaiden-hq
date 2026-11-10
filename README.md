@@ -5,6 +5,7 @@ sales tax, and payouts. It works with no signal and syncs when the connection co
 
 - **Plan and business rules:** [`docs/PLAN.md`](docs/PLAN.md)
 - **Code conventions:** [`CLAUDE.md`](CLAUDE.md)
+- **Opening production:** [`docs/GO-LIVE.md`](docs/GO-LIVE.md)
 
 ## Where it runs
 
@@ -40,6 +41,52 @@ Sign-ins last a week.
 
 **Turning someone off.** Staff → **Turn off**. They're blocked immediately, even if they're
 still signed in. Nobody can turn off their own account or change their own role.
+
+**Is everything working?** Owners see a **System health** panel on the Home screen: when the
+last backup ran, whether the sign-in list is current, and any server error from the past week.
+
+## Backups
+
+Every night at 08:41 UTC (about 3am Central) each site copies its whole database into the
+Cloudflare R2 bucket `shieldmaiden-backups`, as one file per day: `production/2026-11-10.sql`,
+`dev/…`, `demo/…`. Production keeps **30 days**, dev 14, demo 3; older files are deleted by
+the same job. Owners can also tap **Back up now** on the Home screen.
+
+Connecting a site to the bucket is one entry under that site's `env` in `wrangler.jsonc`:
+`"r2_buckets": [{ "binding": "BACKUPS", "bucket_name": "shieldmaiden-backups" }]`. Until a
+site has it, the nightly job skips and System health says "not connected".
+
+**Restoring.** Two ways, from simplest:
+
+1. **Undo the last few days (no file needed).** Cloudflare keeps its own point-in-time
+   history of each database (D1 "Time Travel", 30 days on the paid Workers plan, 7 on free):
+   `pnpm wrangler d1 time-travel restore shieldmaiden-prod --timestamp=2026-11-10T08:00:00Z`.
+   This rewinds the live database in place, so everything after that time is lost.
+2. **From a backup file.** Download it (Cloudflare → R2 → `shieldmaiden-backups` →
+   `production/` → the date → Download), then load it into a **new, empty** database and
+   check it before switching over:
+
+   ```bash
+   pnpm wrangler d1 create shieldmaiden-prod-restore
+   pnpm wrangler d1 execute shieldmaiden-prod-restore --remote --file=2026-11-10.sql
+   pnpm wrangler d1 execute shieldmaiden-prod-restore --remote --command="select count(*) from staff"
+   ```
+
+   To go live with it, put the new database's ID in `wrangler.jsonc` under `production`
+   and deploy. The file includes the migration history, so newer migrations apply normally.
+
+After any restore, tap **Sign out** on each device so it reloads from the server.
+
+## When something goes wrong
+
+- **Owner view:** Home → **System health** shows failed backups, sign-in list problems,
+  and the latest server error (time, which screen or job, and the message).
+- **Full logs:** Cloudflare → **Workers & Pages** → the site's Worker (`shieldmaiden-hq`,
+  `shieldmaiden-hq-dev`, `shieldmaiden-hq-demo`) → **Observability**. Filter by
+  "Errors" to see every failed request and nightly job with its details. Logs are kept for
+  a few days, so look soon after a problem.
+- **Deploys:** GitHub → **Actions → Deploy**; a red run means the site kept its previous
+  version.
 
 ## How changes go live
 
@@ -82,6 +129,8 @@ For reference, in case anything needs rebuilding:
   `shieldmaiden-square-lab`. Each is reachable only on its subdomain (no `workers.dev`).
 - **D1 databases:** `shieldmaiden-dev`, `shieldmaiden-demo`, `shieldmaiden-prod`,
   `shieldmaiden-square-lab`. IDs are in `wrangler.jsonc`.
+- **R2 bucket:** `shieldmaiden-backups` (nightly database copies; see "Backups").
+  Not created yet: the sites skip backups until it exists and is connected.
 - **Access** (team `calebdillenbeck.cloudflareaccess.com`): apps "Shieldmaiden HQ",
   "Shieldmaiden HQ (dev)", "Shieldmaiden Square Lab"; policies "Shieldmaiden HQ staff"
   (production), "Shieldmaiden HQ dev staff" (dev), and "Shieldmaiden HQ admins (dev + Square

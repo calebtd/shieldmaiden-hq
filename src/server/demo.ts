@@ -1,5 +1,4 @@
 import { count, eq } from "drizzle-orm";
-import { newId } from "@shared/ids";
 import type { Role } from "@shared/roles";
 import type { Db } from "./context";
 import {
@@ -13,6 +12,15 @@ import {
   staff,
 } from "./db/schema";
 import { bumpVersion, nextVersion } from "./sync/version";
+
+/**
+ * Demo records get fixed IDs. Two first visits at once can both see an empty database
+ * and both seed; with fixed IDs the second one's rows are all skipped, instead of
+ * leaving a second event or pay rows for people who don't exist.
+ */
+function demoId(n: number): string {
+  return `00000000-0000-7000-8000-${n.toString(16).padStart(12, "0")}`;
+}
 
 /** Fictional staff for demo.shieldmaiden.hair and local development. */
 const DEMO_STAFF: { name: string; role: Role; email: string; pay: [number, number, number] }[] = [
@@ -36,7 +44,7 @@ function demoEvent(now: number) {
   const end = new Date(start.getTime() + 2 * 86_400_000);
   const day = (d: Date) => d.toISOString().slice(0, 10);
   return {
-    id: newId(now),
+    id: demoId(100),
     name: "Midsummer Faire",
     city: "Boise",
     startDate: day(start),
@@ -53,56 +61,68 @@ export async function seedDemoDataIfEmpty(db: Db): Promise<void> {
   const [row] = await db.select({ n: count() }).from(staff);
   if ((row?.n ?? 0) > 0) return;
   const now = Date.now();
-  const people = DEMO_STAFF.map((s) => ({ ...s, id: newId(now) }));
+  const people = DEMO_STAFF.map((s, i) => ({ ...s, id: demoId(i + 1) }));
   const event = demoEvent(now);
   await db.batch([
     bumpVersion(db),
     ...people.map(({ pay: _pay, ...s }) =>
-      db.insert(staff).values({
-        ...s,
-        active: true,
-        phone: null,
-        createdAt: now,
-        updatedAt: now,
-        version: nextVersion,
-      }),
+      db
+        .insert(staff)
+        .values({
+          ...s,
+          active: true,
+          phone: null,
+          createdAt: now,
+          updatedAt: now,
+          version: nextVersion,
+        })
+        .onConflictDoNothing(),
     ),
     ...people.map(({ id, pay: [hourlyCents, commissionBps, tipShareBps] }) =>
-      db.insert(payProfiles).values({
-        staffId: id,
-        hourlyCents,
-        commissionBps,
-        tipShareBps,
-        updatedAt: now,
-        version: nextVersion,
-      }),
+      db
+        .insert(payProfiles)
+        .values({
+          staffId: id,
+          hourlyCents,
+          commissionBps,
+          tipShareBps,
+          updatedAt: now,
+          version: nextVersion,
+        })
+        .onConflictDoNothing(),
     ),
-    db.insert(events).values(event),
+    db.insert(events).values(event).onConflictDoNothing(),
     ...people
       .filter((p) => p.role !== "owner")
       .map((p) =>
-        db.insert(eventStaff).values({
-          eventId: event.id,
-          staffId: p.id,
-          working: true,
-          // Liv is training at this one: a flat $12/hr and no commission.
-          ...(p.name === "Liv"
-            ? { hourlyCents: 1200, commissionBps: 0, note: "Training day" }
-            : {}),
+        db
+          .insert(eventStaff)
+          .values({
+            eventId: event.id,
+            staffId: p.id,
+            working: true,
+            // Liv is training at this one: a flat $12/hr and no commission.
+            ...(p.name === "Liv"
+              ? { hourlyCents: 1200, commissionBps: 0, note: "Training day" }
+              : {}),
+            updatedAt: now,
+            version: nextVersion,
+          })
+          .onConflictDoNothing(),
+      ),
+    ...DEMO_DISCOUNTS.map((d, i) =>
+      db
+        .insert(discountTypes)
+        .values({
+          id: demoId(200 + i),
+          ...d,
+          reducesCommission: d.name === "Comp",
+          active: true,
+          createdAt: now,
           updatedAt: now,
           version: nextVersion,
-        }),
-      ),
-    ...DEMO_DISCOUNTS.map((d) =>
-      db.insert(discountTypes).values({
-        id: newId(now),
-        ...d,
-        reducesCommission: d.name === "Comp",
-        active: true,
-        createdAt: now,
-        updatedAt: now,
-        version: nextVersion,
-      }),
+        })
+        .onConflictDoNothing(),
     ),
   ]);
 }
