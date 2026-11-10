@@ -6,14 +6,14 @@ Phase 5 builds on. Times are America/Chicago.
 
 ## Setup status
 
-| Step                                                  | Status                              |
-| ----------------------------------------------------- | ----------------------------------- |
-| Lab deployed behind Cloudflare sign-in                | Done                                |
-| Production Application ID                             | Done                                |
-| `SQUARE_ACCESS_TOKEN` Worker secret                   | Not yet                             |
-| Point of Sale web callback URL registered in Square   | Unconfirmed                         |
-| Sign-in bypass for `/webhook` only (owner OK needed)  | Done (OK given in chat, 2026-11-10) |
-| Webhook subscription + `SQUARE_WEBHOOK_SIGNATURE_KEY` | Not yet                             |
+| Step                                                  | Status                                                                               |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Lab deployed behind Cloudflare sign-in                | Done                                                                                 |
+| Production Application ID                             | Done                                                                                 |
+| `SQUARE_ACCESS_TOKEN` Worker secret                   | Not yet                                                                              |
+| Point of Sale web callback URL registered in Square   | Unconfirmed                                                                          |
+| Sign-in bypass for `/webhook` only (owner OK needed)  | Done (OK given in chat, 2026-11-10)                                                  |
+| Webhook subscription + `SQUARE_WEBHOOK_SIGNATURE_KEY` | Working (test event 2026-11-10, signature valid); key needs re-adding as type Secret |
 
 ## Decisions so far
 
@@ -49,4 +49,11 @@ _To fill in from test 2._
 
 ## Webhook timing
 
-_To fill in from test 5._
+- 2026-11-10: Square's "Send test event" reached `/webhook` through the sign-in bypass and
+  passed the signature check. The test event is canned sample data (2020 dates, a test
+  merchant), so it tells us nothing about timing; real timing comes from test 5.
+- The payment object in `payment.created` carries `order_id`, `amount_money`,
+  `total_money`, `status`, `receipt_number` and `location_id`, so a webhook alone can link
+  a payment to its order.
+
+_Timing: to fill in from test 5._
