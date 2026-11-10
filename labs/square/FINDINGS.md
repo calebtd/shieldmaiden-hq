@@ -6,14 +6,24 @@ Phase 5 builds on. Times are America/Chicago.
 
 ## Setup status
 
-| Step                                                  | Status      |
-| ----------------------------------------------------- | ----------- |
-| Lab deployed behind Cloudflare sign-in                | Done        |
-| Production Application ID                             | Done        |
-| `SQUARE_ACCESS_TOKEN` Worker secret                   | Not yet     |
-| Point of Sale web callback URL registered in Square   | Unconfirmed |
-| Sign-in bypass for `/webhook` only (owner OK needed)  | Not yet     |
-| Webhook subscription + `SQUARE_WEBHOOK_SIGNATURE_KEY` | Not yet     |
+| Step                                                  | Status                              |
+| ----------------------------------------------------- | ----------------------------------- |
+| Lab deployed behind Cloudflare sign-in                | Done                                |
+| Production Application ID                             | Done                                |
+| `SQUARE_ACCESS_TOKEN` Worker secret                   | Not yet                             |
+| Point of Sale web callback URL registered in Square   | Unconfirmed                         |
+| Sign-in bypass for `/webhook` only (owner OK needed)  | Done (OK given in chat, 2026-11-10) |
+| Webhook subscription + `SQUARE_WEBHOOK_SIGNATURE_KEY` | Not yet                             |
+
+## Decisions so far
+
+- Customers add tips on **Square's own tip screen**, so we read the tip back through
+  Square's API (needs `SQUARE_ACCESS_TOKEN`).
+- The Square app doesn't need to bring the iPad back to HQ automatically. What matters is that
+  each payment carries our reference for matching later. The Lab sends it as `state` (returned
+  in the callback) and in the payment **note** (to see whether it survives into Square's
+  records and exports, including offline payments).
+- Square still requires a registered callback URL for the payment link to open at all.
 
 ## Results
 

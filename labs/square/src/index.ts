@@ -96,7 +96,8 @@ app.post("/charge", async (c) => {
     appId: c.env.SQUARE_APP_ID,
     callbackUrl: `${c.env.PUBLIC_URL}/callback`,
     amountCents,
-    notes: text(form.notes),
+    // Our reference rides in the note too, so it shows on Square's records and exports.
+    notes: [text(form.notes).trim(), ref].filter(Boolean).join(" · "),
     ref,
     tenderTypes: tenders.length ? tenders : (["CREDIT_CARD"] as TenderType[]),
     skipReceipt: Boolean(form.skipReceipt),
