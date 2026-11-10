@@ -23,6 +23,8 @@ Phase 5 builds on. Times are America/Chicago.
   each payment carries our reference for matching later. The Lab sends it as `state` (returned
   in the callback) and in the payment **note** (to see whether it survives into Square's
   records and exports, including offline payments).
+- Square is for **cards only**. Cash and Venmo are recorded in HQ, so the Lab only offers
+  card in Square.
 - Square still requires a registered callback URL for the payment link to open at all.
 
 ## Results
@@ -34,10 +36,9 @@ One row per checklist test. "Confirmed" means seen in the log, not taken from Sq
 | 1   | Card, no tip                 |        |       |
 | 2   | Card with tip                |        |       |
 | 3   | Cancel in Square             |        |       |
-| 4   | Cash                         |        |       |
-| 5   | Offline card, then reconnect |        |       |
-| 6   | Android                      |        |       |
-| 7   | Refunds done                 |        |       |
+| 4   | Offline card, then reconnect |        |       |
+| 5   | Android                      |        |       |
+| 6   | Refunds done                 |        |       |
 
 ## Callback fields (iOS)
 
@@ -51,7 +52,7 @@ _To fill in from test 2._
 
 - 2026-11-10: Square's "Send test event" reached `/webhook` through the sign-in bypass and
   passed the signature check. The test event is canned sample data (2020 dates, a test
-  merchant), so it tells us nothing about timing; real timing comes from test 5.
+  merchant), so it tells us nothing about timing; real timing comes from test 4.
 - The payment object in `payment.created` carries `order_id`, `amount_money`,
   `total_money`, `status`, `receipt_number` and `location_id`, so a webhook alone can link
   a payment to its order.
@@ -59,4 +60,4 @@ _To fill in from test 2._
 - Sending a test event twice delivered the same `event_id` both times, so Phase 5 must
   ignore repeats by `event_id`.
 
-_Timing: to fill in from test 5._
+_Timing: to fill in from test 4._

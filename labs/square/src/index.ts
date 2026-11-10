@@ -5,7 +5,6 @@ import {
   iosChargeUrl,
   parseCallback,
   parseDollars,
-  TENDER_TYPES,
   type TenderType,
 } from "./pos";
 import { listRecentPayments, retrieveOrder, verifyWebhook, type SquareConfig } from "./square-api";
@@ -57,21 +56,7 @@ app.get("/", (c) => {
           <h2>Start a test charge</h2>
           <label>Amount <input name="amount" inputmode="decimal" value="1.00" required /></label>
           <label>Note (shows in Square) <input name="notes" value="Square Lab test" /></label>
-          <fieldset>
-            <legend>Allowed payment types</legend>
-            ${TENDER_TYPES.map(
-              (t) =>
-                html`<label class="check"
-                  ><input
-                    type="checkbox"
-                    name="tender"
-                    value="${t}"
-                    ${t === "CREDIT_CARD" || t === "CASH" ? "checked" : ""}
-                  />
-                  ${t}</label
-                >`,
-            )}
-          </fieldset>
+          <p>Card only. Cash and Venmo are recorded in HQ, not Square.</p>
           <label class="check"
             ><input type="checkbox" name="skipReceipt" checked /> Skip receipt screen</label
           >
@@ -88,9 +73,6 @@ app.post("/charge", async (c) => {
   const amountCents = parseDollars(text(form.amount));
   if (!amountCents)
     return c.html(page("Square Lab", html`<p class="banner">Enter an amount.</p>`), 400);
-  const tenders = ([] as unknown[])
-    .concat(form.tender ?? [])
-    .filter((t): t is TenderType => TENDER_TYPES.includes(t as TenderType));
   const ref = `lab-${Date.now().toString(36)}`;
   const req = {
     appId: c.env.SQUARE_APP_ID,
@@ -99,7 +81,8 @@ app.post("/charge", async (c) => {
     // Our reference rides in the note too, so it shows on Square's records and exports.
     notes: [text(form.notes).trim(), ref].filter(Boolean).join(" · "),
     ref,
-    tenderTypes: tenders.length ? tenders : (["CREDIT_CARD"] as TenderType[]),
+    // Square is for cards only; cash and Venmo are recorded in HQ.
+    tenderTypes: ["CREDIT_CARD"] as TenderType[],
     skipReceipt: Boolean(form.skipReceipt),
   };
   const ios = iosChargeUrl(req);
@@ -298,7 +281,6 @@ const checklist = html`
       <li>Card, no tip. Does Square return to this page with an order ID?</li>
       <li>Card with a tip on Square's screen. Does the order lookup show the tip?</li>
       <li>Start a charge, then cancel in Square. What error comes back?</li>
-      <li>Cash in Square. Does it still come back here?</li>
       <li>
         Airplane mode on the iPad (Square offline mode on), take a card. What IDs come back? Turn
         signal back on: does a webhook arrive, and do recent payments show it?
