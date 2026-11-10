@@ -29,6 +29,13 @@
       "when": 1794331021459,
       "tag": "0003_menu_and_skills",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1794334841560,
+      "tag": "0004_time_entries",
+      "breakpoints": true
     }
   ]
 }

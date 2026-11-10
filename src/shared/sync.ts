@@ -3,6 +3,7 @@ import { discountTypeSchema } from "./entities/discount";
 import { eventSchema, eventStaffSchema } from "./entities/event";
 import { eventMenuSchema, menuItemSchema, skillSchema, staffSkillSchema } from "./entities/menu";
 import { payProfileSchema } from "./entities/pay";
+import { timeEntrySchema } from "./entities/time";
 import { staffSchema } from "./entities/staff";
 import { idSchema } from "./ids";
 import { roleSchema } from "./roles";
@@ -64,6 +65,7 @@ export const pullResponseSchema = z.object({
     skills: z.array(skillSchema),
     staffSkills: z.array(staffSkillSchema),
     eventMenu: z.array(eventMenuSchema),
+    timeEntries: z.array(timeEntrySchema),
   }),
 });
 export type PullResponse = z.infer<typeof pullResponseSchema>;

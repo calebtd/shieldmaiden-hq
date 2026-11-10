@@ -90,6 +90,12 @@ Several Claude sessions work on this repo in parallel. Each owns one area (see "
   library, price board and skills sheet (Nov 10) are in
   `src/client/features/menu/starterMenu.ts`, loaded with buttons on Menu and Skills. Left
   for Phase 3: snapshotting rates on lock, bonuses (adjustments), per-ticket price changes.
+- Phase 2 (timeclock): `time_entries` (work/break per person per event, append-only:
+  fixes void + replace with a reason; only end time is filled in place). "My shift" for
+  everyone (big clock buttons, works offline, fix/add/remove own time), owner
+  "Timesheets" per event (hours, breaks, hourly pay so far, clock someone in/out, fixes).
+  Rules in `src/domain/time.ts` (breaks unpaid, no double counting). Time is private
+  like pay. Sign-out now sends waiting changes first and warns if it can't.
 - Layout: sidebar (drawer from "☰ Screens" on phones under 768px). Add screens to the
   grouped `NAV` list in `src/client/components/Layout.tsx`.
 - Ops (`ops-golive`): nightly D1 → R2 backup job (`src/server/ops/`, cron `41 8 * * *` on every
