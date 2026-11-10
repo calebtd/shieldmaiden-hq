@@ -6,14 +6,14 @@ Phase 5 builds on. Times are America/Chicago.
 
 ## Setup status
 
-| Step                                                  | Status                                                                               |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| Lab deployed behind Cloudflare sign-in                | Done                                                                                 |
-| Production Application ID                             | Done                                                                                 |
-| `SQUARE_ACCESS_TOKEN` Worker secret                   | Not yet                                                                              |
-| Point of Sale web callback URL registered in Square   | Unconfirmed                                                                          |
-| Sign-in bypass for `/webhook` only (owner OK needed)  | Done (OK given in chat, 2026-11-10)                                                  |
-| Webhook subscription + `SQUARE_WEBHOOK_SIGNATURE_KEY` | Working (test event 2026-11-10, signature valid); key needs re-adding as type Secret |
+| Step                                                  | Status                                     |
+| ----------------------------------------------------- | ------------------------------------------ |
+| Lab deployed behind Cloudflare sign-in                | Done                                       |
+| Production Application ID                             | Done                                       |
+| `SQUARE_ACCESS_TOKEN` Worker secret                   | Done                                       |
+| Point of Sale web callback URL registered in Square   | Done (per owner; confirmed by test 1)      |
+| Sign-in bypass for `/webhook` only (owner OK needed)  | Done (OK given in chat, 2026-11-10)        |
+| Webhook subscription + `SQUARE_WEBHOOK_SIGNATURE_KEY` | Done (3 test events, all signatures valid) |
 
 ## Decisions so far
 
@@ -55,5 +55,8 @@ _To fill in from test 2._
 - The payment object in `payment.created` carries `order_id`, `amount_money`,
   `total_money`, `status`, `receipt_number` and `location_id`, so a webhook alone can link
   a payment to its order.
+
+- Sending a test event twice delivered the same `event_id` both times, so Phase 5 must
+  ignore repeats by `event_id`.
 
 _Timing: to fill in from test 5._
