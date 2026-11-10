@@ -25,8 +25,9 @@ export async function loadStarterMenu(db: LocalDb, engine: SyncEngine): Promise<
   let added = 0;
   for (const item of STARTER_MENU) {
     if (existing.has(`${item.kind}:${key(item.name)}`)) continue;
+    const id = newId();
     await engine.mutate("menu.create", {
-      id: newId(),
+      id,
       kind: item.kind,
       name: item.name,
       priceCents: item.price === null ? 0 : dollarsToCents(item.price),
@@ -35,6 +36,7 @@ export async function loadStarterMenu(db: LocalDb, engine: SyncEngine): Promise<
       description: item.description ?? null,
       skillIds: (item.skills ?? []).flatMap((s) => skillIds.get(key(s)) ?? []),
     });
+    if (item.off) await engine.mutate("menu.update", { id, active: false });
     added++;
   }
   return added;
