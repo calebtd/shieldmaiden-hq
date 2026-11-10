@@ -69,6 +69,9 @@ export function page(title: string, body: Content) {
             display: grid;
             gap: 12px;
           }
+          .muted {
+            color: var(--muted);
+          }
           .banner {
             background: var(--warn);
             border-radius: 10px;

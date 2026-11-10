@@ -9,25 +9,10 @@ import {
 } from "./pos";
 import { listRecentPayments, retrieveOrder, verifyWebhook, type SquareConfig } from "./square-api";
 import { page } from "./page";
-
-/** Secrets aren't in wrangler.jsonc, so they're declared here. */
-type LabEnv = Env & { SQUARE_ACCESS_TOKEN?: string; SQUARE_WEBHOOK_SIGNATURE_KEY?: string };
+import { log, type LabEnv } from "./log";
+import { chargeScript, offlineRoutes } from "./offline";
 
 const app = new Hono<{ Bindings: LabEnv }>();
-
-async function log(
-  env: LabEnv,
-  kind: string,
-  ref: string | null,
-  summary: string,
-  payload: unknown,
-) {
-  await env.DB.prepare(
-    "INSERT INTO events (kind, ref, at, summary, payload) VALUES (?, ?, ?, ?, ?)",
-  )
-    .bind(kind, ref, Date.now(), summary, JSON.stringify(payload, null, 2))
-    .run();
-}
 
 /** A single text field from a submitted form, or "" if missing. */
 function text(value: unknown): string {
@@ -52,7 +37,7 @@ app.get("/", (c) => {
             ? ""
             : html`<p class="banner">Set SQUARE_APP_ID in labs/square/wrangler.jsonc first.</p>`
         }
-        <form class="panel" method="post" action="/charge">
+        <form id="charge" class="panel" method="post" action="/charge">
           <h2>Start a test charge</h2>
           <label>Amount <input name="amount" inputmode="decimal" value="1.00" required /></label>
           <label>Note (shows in Square) <input name="notes" value="Square Lab test" /></label>
@@ -62,7 +47,7 @@ app.get("/", (c) => {
           >
           <button class="primary" ${ready ? "" : "disabled"}>Open Square</button>
         </form>
-        ${checklist}
+        ${chargeScript(c.env.SQUARE_APP_ID, `${c.env.PUBLIC_URL}/callback`)} ${checklist}
       `,
     ),
   );
@@ -282,13 +267,17 @@ const checklist = html`
       <li>Card with a tip on Square's screen. Does the order lookup show the tip?</li>
       <li>Start a charge, then cancel in Square. What error comes back?</li>
       <li>
-        Airplane mode on the iPad (Square offline mode on), take a card. What IDs come back? Turn
-        signal back on: does a webhook arrive, and do recent payments show it?
+        Offline: open this page once with signal (so the iPad keeps a copy), then turn on airplane
+        mode and Square's offline payments. Take a card. Does Square come back here, and with what
+        IDs? Turn signal back on and open this page: the saved results are sent to the log. Does a
+        webhook arrive, and when?
       </li>
       <li>Same tests from an Android phone, if anyone uses one.</li>
       <li>Refund the test charges in Square afterward.</li>
     </ol>
   </section>
 `;
+
+offlineRoutes(app);
 
 export default app;
