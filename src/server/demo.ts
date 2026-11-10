@@ -20,16 +20,21 @@ export async function seedDemoDataIfEmpty(db: Db): Promise<void> {
   const now = Date.now();
   await db.batch([
     bumpVersion(db),
+    // Two first visits at once can both see an empty table; the second one's rows are
+    // skipped (same emails) instead of failing the persona picker.
     ...DEMO_STAFF.map((s) =>
-      db.insert(staff).values({
-        id: newId(now),
-        ...s,
-        active: true,
-        phone: null,
-        createdAt: now,
-        updatedAt: now,
-        version: nextVersion,
-      }),
+      db
+        .insert(staff)
+        .values({
+          id: newId(now),
+          ...s,
+          active: true,
+          phone: null,
+          createdAt: now,
+          updatedAt: now,
+          version: nextVersion,
+        })
+        .onConflictDoNothing(),
     ),
   ]);
 }
