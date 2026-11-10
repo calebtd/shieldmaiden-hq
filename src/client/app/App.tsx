@@ -8,6 +8,8 @@ import { EventsPage } from "../features/events/EventsPage";
 import { HomePage } from "../features/home/HomePage";
 import { MenuPage } from "../features/menu/MenuPage";
 import { SkillsPage } from "../features/skills/SkillsPage";
+import { MyShiftPage } from "../features/timeclock/MyShiftPage";
+import { TimesheetsPage } from "../features/timeclock/TimesheetsPage";
 import { PersonaPicker } from "../features/personas/PersonaPicker";
 import { StaffPage } from "../features/staff/StaffPage";
 import { SessionProvider, useSession, useSessionContext } from "../session/session";
@@ -66,6 +68,15 @@ export function App() {
                 element={
                   <RequireRole roles={["owner"]}>
                     <SkillsPage />
+                  </RequireRole>
+                }
+              />
+              <Route path="/shift" element={<MyShiftPage />} />
+              <Route
+                path="/timesheets"
+                element={
+                  <RequireRole roles={["owner"]}>
+                    <TimesheetsPage />
                   </RequireRole>
                 }
               />

@@ -15,7 +15,7 @@ export async function requireEditableEvent(db: Db, eventId: string) {
   const row = await db.select().from(events).where(eq(events.id, eventId)).get();
   if (!row) throw new DomainError("That event doesn't exist.", 404);
   if (row.status === "locked") {
-    throw new DomainError(`${row.name} is locked, so its setup can't change.`, 409);
+    throw new DomainError(`${row.name} is locked. Nothing can change after close-out.`, 409);
   }
   return row;
 }

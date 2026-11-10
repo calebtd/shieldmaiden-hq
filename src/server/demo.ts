@@ -14,6 +14,7 @@ import {
   skills,
   staff,
   staffSkills,
+  timeEntries,
 } from "./db/schema";
 import { bumpVersion, nextVersion } from "./sync/version";
 
@@ -197,6 +198,7 @@ export async function resetDemoData(db: Db): Promise<void> {
     db.delete(skills),
     db.delete(staffSkills),
     db.delete(eventMenu),
+    db.delete(timeEntries),
     db.delete(mutationsApplied),
     db.delete(auditLog),
     db.update(serverMeta).set({ value: epoch }).where(eq(serverMeta.key, "epoch")),

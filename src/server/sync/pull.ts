@@ -13,6 +13,7 @@ import {
   staff,
   staffSkills,
   syncCounter,
+  timeEntries,
 } from "../db/schema";
 
 /**
@@ -32,6 +33,7 @@ export async function pull(db: Db, user: AuthedUser, cursor: number): Promise<Pu
     skillRows,
     staffSkillRows,
     eventMenuRows,
+    timeRows,
   ] = await db.batch([
     db.select().from(syncCounter).where(eq(syncCounter.id, 1)),
     db.select().from(serverMeta).where(eq(serverMeta.key, "epoch")),
@@ -44,6 +46,7 @@ export async function pull(db: Db, user: AuthedUser, cursor: number): Promise<Pu
     db.select().from(skills).where(gt(skills.version, cursor)),
     db.select().from(staffSkills).where(gt(staffSkills.version, cursor)),
     db.select().from(eventMenu).where(gt(eventMenu.version, cursor)),
+    db.select().from(timeEntries).where(gt(timeEntries.version, cursor)),
   ]);
   const counter = counterRows[0]?.value;
   const epoch = epochRows[0]?.value;
@@ -75,6 +78,8 @@ export async function pull(db: Db, user: AuthedUser, cursor: number): Promise<Pu
       skills: skillRows,
       staffSkills: staffSkillRows,
       eventMenu: eventMenuRows,
+      // Time is private like pay: everyone else sees only their own.
+      timeEntries: timeRows.filter((t) => mine(t.staffId)),
     },
   };
 }

@@ -9,6 +9,7 @@ import {
 } from "drizzle-orm/sqlite-core";
 import type { EventStatus } from "@shared/entities/event";
 import type { MenuKind } from "@shared/entities/menu";
+import type { TimeKind } from "@shared/entities/time";
 import type { Role } from "@shared/roles";
 
 /**
@@ -183,6 +184,36 @@ export const eventMenu = sqliteTable(
   (t) => [
     primaryKey({ columns: [t.eventId, t.menuItemId] }),
     index("event_menu_version").on(t.version),
+  ],
+);
+
+/**
+ * Time on the clock or on break. Append-only: corrections void an entry and add one
+ * that `replaces_id` it. Only `end_at` is filled in place (clock out / end break).
+ */
+export const timeEntries = sqliteTable(
+  "time_entries",
+  {
+    id: text("id").primaryKey(),
+    eventId: text("event_id").notNull(),
+    staffId: text("staff_id").notNull(),
+    kind: text("kind").$type<TimeKind>().notNull(),
+    startAt: integer("start_at").notNull(),
+    endAt: integer("end_at"),
+    replacesId: text("replaces_id"),
+    reason: text("reason"),
+    createdBy: text("created_by").notNull(),
+    voidedAt: integer("voided_at"),
+    voidedBy: text("voided_by"),
+    voidReason: text("void_reason"),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+    version: integer("version").notNull(),
+  },
+  (t) => [
+    index("time_entries_version").on(t.version),
+    index("time_entries_staff").on(t.staffId, t.startAt),
+    index("time_entries_event").on(t.eventId),
   ],
 );
 

@@ -64,6 +64,7 @@ class FakeServer implements SyncTransport {
         skills: [],
         staffSkills: [],
         eventMenu: [],
+        timeEntries: [],
       },
     });
   }

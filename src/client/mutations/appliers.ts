@@ -4,6 +4,7 @@ import type { MutationArgs, MutationName } from "@shared/mutations";
 import { definedOnly } from "@shared/objects";
 import type { LocalDb } from "../db/local";
 import { menuAppliers } from "./menuAppliers";
+import { timeAppliers } from "./timeAppliers";
 
 /**
  * Applies a change to the device's copy right away, before the server has seen it.
@@ -19,6 +20,7 @@ type Appliers = { [N in MutationName]: Applier<N> };
 
 export const appliers: Appliers = {
   ...menuAppliers,
+  ...timeAppliers,
   "staff.create": async (db, args, now) => {
     const existing = await db.staff.get(args.id);
     await db.staff.put({

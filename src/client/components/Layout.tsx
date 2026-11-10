@@ -1,6 +1,7 @@
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { NavLink } from "react-router";
 import { ROLE_LABELS, type Role } from "@shared/roles";
+import { useSyncEngine } from "../app/sync";
 import { useSession, useSessionContext } from "../session/session";
 import { SyncBadge } from "./SyncBadge";
 import { SyncProblem } from "./SyncProblem";
@@ -22,7 +23,16 @@ const EVERYONE: readonly Role[] = ["owner", "checkout", "braider"];
 
 /** Add a screen here to put it in the sidebar for the roles that can use it. */
 const NAV: NavGroup[] = [
-  { items: [{ to: "/", label: "Home", roles: EVERYONE }] },
+  {
+    items: [
+      { to: "/", label: "Home", roles: EVERYONE },
+      { to: "/shift", label: "My shift", roles: EVERYONE },
+    ],
+  },
+  {
+    heading: "After the event",
+    items: [{ to: "/timesheets", label: "Timesheets", roles: ["owner"] }],
+  },
   {
     heading: "Setup",
     items: [
@@ -122,13 +132,28 @@ function useIsPhone(): boolean {
 function SidebarFooter({ showSync }: { showSync: boolean }) {
   const session = useSession();
   const { signOut } = useSessionContext();
+  const engine = useSyncEngine();
+
+  /** Signing out clears this device, so send waiting changes first, or warn. */
+  async function leave() {
+    await engine.sync();
+    const { pending } = engine.getState();
+    if (pending > 0) {
+      const what = pending === 1 ? "1 change hasn't" : `${pending} changes haven't`;
+      const ok = window.confirm(
+        `${what} been sent yet (no signal?). If you sign out now, ${pending === 1 ? "it" : "they"} will be lost.\n\nSign out anyway?`,
+      );
+      if (!ok) return;
+    }
+    await signOut();
+  }
   return (
     <div className="side-footer">
       {showSync && <SyncBadge />}
       <span className="small">
         {session.name} · {ROLE_LABELS[session.role]}
       </span>
-      <button type="button" className="ghost compact" onClick={() => void signOut()}>
+      <button type="button" className="ghost compact" onClick={() => void leave()}>
         {session.authMode === "access" ? "Sign out" : "Switch person"}
       </button>
     </div>

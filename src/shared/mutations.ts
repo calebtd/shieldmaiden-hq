@@ -19,7 +19,9 @@ import {
 import { hourlyCentsSchema, percentBpsSchema } from "./entities/money";
 import { staffEmailSchema, staffNameSchema, staffPhoneSchema } from "./entities/staff";
 import { idSchema } from "./ids";
+import { define } from "./mutationDef";
 import { roleSchema, type Role } from "./roles";
+import { timeMutations } from "./timeMutations";
 
 /**
  * Every change to data is a named mutation. The same definition is used by:
@@ -29,15 +31,6 @@ import { roleSchema, type Role } from "./roles";
  * To add one: define it here, then add a server handler (src/server/mutations) and a
  * client applier (src/client/mutations). TypeScript will flag any that are missing.
  */
-interface MutationDefinition<A extends z.ZodType> {
-  args: A;
-  /** Roles allowed to run this mutation. */
-  roles: readonly Role[];
-}
-
-function define<A extends z.ZodType>(def: MutationDefinition<A>): MutationDefinition<A> {
-  return def;
-}
 
 const optionalEmail = z.union([z.literal(""), staffEmailSchema]).transform((v) => v || null);
 const optionalPhone = z.union([z.literal(""), staffPhoneSchema]).transform((v) => v || null);
@@ -225,6 +218,7 @@ export const mutations = {
       offered: z.boolean(),
     }),
   }),
+  ...timeMutations,
 };
 
 export type MutationName = keyof typeof mutations;

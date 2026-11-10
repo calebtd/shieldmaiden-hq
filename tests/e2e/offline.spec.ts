@@ -70,3 +70,37 @@ test("on a phone, the screens list opens from the top bar and closes after picki
   await expect(page.getByRole("heading", { name: "Staff" })).toBeVisible();
   await expect(staffLink).not.toBeInViewport();
 });
+
+test.describe(() => {
+  // Playwright's offline switch doesn't cover requests made by the offline helper
+  // (service worker), so turn it off here to be truly offline.
+  test.use({ serviceWorkers: "block" });
+
+  test("switching person with unsent changes warns instead of losing them", async ({
+    page,
+    context,
+  }) => {
+    await page.goto("/");
+    await page.getByRole("button", { name: /Astrid/ }).click();
+    await page.getByRole("link", { name: "Staff" }).click();
+    await expect(page.getByText("All saved")).toBeVisible();
+    await context.setOffline(true);
+    const name = `Unsent ${Math.random().toString(36).slice(2, 7)}`;
+    await page.getByLabel("Name").fill(name);
+    await page.getByRole("button", { name: "Add to staff" }).click();
+    await expect(page.getByText(/1 change waiting/)).toBeVisible();
+
+    let message = "(no warning)";
+    page.once("dialog", (d) => {
+      message = d.message();
+      void d.dismiss();
+    });
+    await page.getByRole("button", { name: "Switch person" }).click();
+    await expect.poll(() => message).toContain("1 change hasn't been sent yet");
+    // Still signed in, change still there.
+    await expect(page.getByText(name)).toBeVisible();
+    await context.setOffline(false);
+    await page.evaluate(() => window.dispatchEvent(new Event("online")));
+    await expect(page.getByText("All saved")).toBeVisible({ timeout: 15_000 });
+  });
+});

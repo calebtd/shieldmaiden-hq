@@ -125,7 +125,7 @@ describe("events", () => {
     // Locking arrives with close-out (Phase 3); set it directly for now.
     await createDb(env.DB).update(events).set({ status: "locked" }).where(eq(events.id, id));
     const res = await owner.mutate("event.update", { id, name: "Renamed" });
-    expect(error(res)).toBe("Spring Faire is locked, so its setup can't change.");
+    expect(error(res)).toBe("Spring Faire is locked. Nothing can change after close-out.");
     const crew = await owner.mutate("event.setWorking", {
       eventId: id,
       staffId: braiderId,
