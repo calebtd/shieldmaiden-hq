@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { discountTypeSchema } from "./entities/discount";
+import { eventSchema, eventStaffSchema } from "./entities/event";
+import { payProfileSchema } from "./entities/pay";
 import { staffSchema } from "./entities/staff";
 import { idSchema } from "./ids";
 import { roleSchema } from "./roles";
@@ -52,6 +55,10 @@ export const pullResponseSchema = z.object({
   cursor: z.number().int(),
   changes: z.object({
     staff: z.array(staffSchema),
+    payProfiles: z.array(payProfileSchema),
+    events: z.array(eventSchema),
+    eventStaff: z.array(eventStaffSchema),
+    discountTypes: z.array(discountTypeSchema),
   }),
 });
 export type PullResponse = z.infer<typeof pullResponseSchema>;

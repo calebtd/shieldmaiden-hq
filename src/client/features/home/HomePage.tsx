@@ -10,8 +10,8 @@ export function HomePage() {
       <section className="panel">
         <h2>Coming next</h2>
         <p className="muted">
-          Events, the braid menu, the timeclock, tickets, and payouts are being built in that order.
-          This screen will show the current event once events exist.
+          The braid menu, the timeclock, tickets, and payouts are being built in that order. This
+          screen will show the current event once the timeclock is ready.
         </p>
       </section>
     </>

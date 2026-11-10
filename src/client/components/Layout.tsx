@@ -15,7 +15,9 @@ interface NavItem {
 /** Add a screen here to put it in the menu for the roles that can use it. */
 const NAV: NavItem[] = [
   { to: "/", label: "Home", roles: ["owner", "checkout", "braider"] },
+  { to: "/events", label: "Events", roles: ["owner"] },
   { to: "/staff", label: "Staff", roles: ["owner"] },
+  { to: "/discounts", label: "Discounts", roles: ["owner"] },
 ];
 
 const ENV_LABEL = { local: "Local", dev: "Dev", demo: "Demo", production: null } as const;

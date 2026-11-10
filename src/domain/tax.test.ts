@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { bps, cents } from "./money";
-import { splitTaxIncluded } from "./tax";
+import { assertValidTaxRate, splitTaxIncluded } from "./tax";
 
 describe("splitTaxIncluded", () => {
   it("backs tax out of a tax-included price", () => {
@@ -24,5 +24,16 @@ describe("splitTaxIncluded", () => {
         expect(s.tax).toBeGreaterThanOrEqual(0);
       }
     }
+  });
+});
+
+describe("assertValidTaxRate", () => {
+  it("accepts 0% to 20%", () => {
+    expect(() => assertValidTaxRate(bps(0))).not.toThrow();
+    expect(() => assertValidTaxRate(bps(2000))).not.toThrow();
+  });
+
+  it("rejects typos like 825% instead of 8.25%", () => {
+    expect(() => assertValidTaxRate(bps(82500))).toThrow(/between 0% and 20%/);
   });
 });

@@ -81,6 +81,12 @@ Several Claude sessions work on this repo in parallel. Each owns one area (see "
   live identity on every sync, company palette), Staff screen mirrors the Cloudflare sign-in
   list (needs the `ACCESS_ADMIN_TOKEN` Worker secret), Square Lab (needs
   `SQUARE_ACCESS_TOKEN` secret and the callback URL registered in Square).
+- Phase 1 (in progress): pay profiles (Staff screen, one per person, last change wins), events
+  with tax rate + who's working + per-event pay overrides (Events screen), discount types
+  (Discounts screen). Domain rules in `src/domain/pay.ts` and `discounts.ts`. Pay is private:
+  non-owners only receive their own pay rows and their own event pay. Not done yet: braid menu
+  and skills (waiting on the owner's menu), snapshotting rates on lock (Phase 3 close-out),
+  bonuses (Phase 3 adjustments; the override form says so).
 - Ops (`ops-golive`): nightly D1 → R2 backup job (`src/server/ops/`, cron `41 8 * * *` on every
   site, keeps prod 30 / dev 14 / demo 3 days), owner-only **System health** panel on Home
   (`/api/ops/health`, `/api/ops/backup`; server errors recorded in `server_meta`),

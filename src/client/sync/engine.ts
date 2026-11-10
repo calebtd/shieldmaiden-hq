@@ -1,3 +1,4 @@
+import type { Table } from "dexie";
 import { newId } from "@shared/ids";
 import { mutations, type MutationInput, type MutationName } from "@shared/mutations";
 import { meSchema, type PullResponse } from "@shared/sync";
@@ -208,7 +209,9 @@ export class SyncEngine {
       async () => {
         if (replaceAll) await Promise.all(this.syncedTables().map((t) => t.clear()));
         for (const table of SYNCED_TABLES) {
-          await this.db[table].bulkPut(response.changes[table]);
+          // Each table gets its own rows; TypeScript can't pair them up across the loop.
+          const rows: unknown[] = response.changes[table];
+          await (this.db[table] as Table<unknown>).bulkPut(rows);
         }
         await this.db.meta.bulkPut([
           { key: "cursor", value: response.cursor },

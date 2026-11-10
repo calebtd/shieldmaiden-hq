@@ -82,3 +82,34 @@ const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" 
 export function formatCents(amount: Cents): string {
   return usd.format(amount / 100);
 }
+
+/**
+ * A percentage as typed by a person ("8.25", "8.25%", " 20 ") → basis points.
+ * Allows at most two decimal places so nothing is silently rounded away.
+ */
+export function parsePercent(text: string): Bps {
+  const cleaned = text.replace(/[%\s]/g, "");
+  if (!/^\d+(\.\d{1,2})?$|^\.\d{1,2}$/.test(cleaned)) {
+    throw new RangeError("Enter a percent like 8.25");
+  }
+  const [whole = "0", frac = ""] = cleaned.split(".");
+  return bps(Number(whole || "0") * 100 + Number(frac.padEnd(2, "0")));
+}
+
+/**
+ * Dollars as typed by a person ("12", "$12.50") → cents. Stricter than
+ * `dollarsToCents`: at most two decimal places, no negatives.
+ */
+export function parseDollars(text: string): Cents {
+  const cleaned = text.replace(/[$,\s]/g, "");
+  if (!/^\d+(\.\d{1,2})?$|^\.\d{1,2}$/.test(cleaned)) {
+    throw new RangeError("Enter an amount like 12.50");
+  }
+  const [whole = "0", frac = ""] = cleaned.split(".");
+  return cents(Number(whole || "0") * 100 + Number(frac.padEnd(2, "0")));
+}
+
+/** Basis points → "8.25%" / "20%" for display. */
+export function formatPercent(rate: Bps): string {
+  return `${(rate / 100).toLocaleString("en-US", { maximumFractionDigits: 2 })}%`;
+}

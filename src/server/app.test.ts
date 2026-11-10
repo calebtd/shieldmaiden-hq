@@ -2,7 +2,7 @@ import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, it } from "vitest";
 import { newId } from "@shared/ids";
 import { createDb } from "./context";
-import { staff } from "./db/schema";
+import { discountTypes, events, payProfiles, staff } from "./db/schema";
 import { resetDemoData, seedDemoDataIfEmpty } from "./demo";
 import { TestClient } from "./test/client";
 
@@ -212,5 +212,8 @@ describe("demo reset", () => {
     await db.delete(staff);
     await Promise.all([1, 2, 3].map(() => seedDemoDataIfEmpty(db)));
     expect(await db.select().from(staff)).toHaveLength(5);
+    expect(await db.select().from(payProfiles)).toHaveLength(5);
+    expect(await db.select().from(events)).toHaveLength(1);
+    expect(await db.select().from(discountTypes)).toHaveLength(3);
   });
 });

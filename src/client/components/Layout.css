@@ -50,7 +50,7 @@
   gap: 8px;
   flex-wrap: wrap;
 }
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .nav {
     order: 3;
     flex-basis: 100%;

@@ -15,6 +15,13 @@
       "when": 1793972877374,
       "tag": "0001_seed_counters",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794329287335,
+      "tag": "0002_phase1_setup_data",
+      "breakpoints": true
     }
   ]
 }

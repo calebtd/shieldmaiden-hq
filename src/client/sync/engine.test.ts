@@ -54,7 +54,13 @@ class FakeServer implements SyncTransport {
       me: this.me,
       epoch: this.epoch,
       cursor: this.version,
-      changes: { staff: [...this.staff.values()].filter((s) => s.version > cursor) },
+      changes: {
+        staff: [...this.staff.values()].filter((s) => s.version > cursor),
+        payProfiles: [],
+        events: [],
+        eventStaff: [],
+        discountTypes: [],
+      },
     });
   }
 }
