@@ -32,6 +32,8 @@ export default defineConfig({
             wrangler: { configPath: "./wrangler.jsonc" },
             miniflare: {
               bindings: { TEST_MIGRATIONS: await readD1Migrations("./migrations") },
+              // An empty database to restore backups into.
+              d1Databases: ["RESTORE_TEST"],
             },
           })),
         ],

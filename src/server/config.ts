@@ -33,7 +33,16 @@ export interface Config {
   access: { teamDomain: string; audience: string } | null;
   /** When set, the staff list is mirrored into this Cloudflare Access policy. */
   accessList: AccessListConfig | null;
+  /** How many days of nightly backups to keep in the backup bucket. */
+  backupKeepDays: number;
 }
+
+const BACKUP_KEEP_DAYS: Record<Config["appEnv"], number> = {
+  production: 30,
+  dev: 14,
+  demo: 3,
+  local: 3,
+};
 
 export function readConfig(env: Env): Config {
   const c = configSchema.parse(env);
@@ -58,5 +67,6 @@ export function readConfig(env: Env): Config {
             token: c.ACCESS_ADMIN_TOKEN,
           }
         : null,
+    backupKeepDays: BACKUP_KEEP_DAYS[c.APP_ENV],
   };
 }
