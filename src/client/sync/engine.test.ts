@@ -60,6 +60,10 @@ class FakeServer implements SyncTransport {
         events: [],
         eventStaff: [],
         discountTypes: [],
+        menuItems: [],
+        skills: [],
+        staffSkills: [],
+        eventMenu: [],
       },
     });
   }

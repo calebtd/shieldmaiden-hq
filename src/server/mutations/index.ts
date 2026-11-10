@@ -1,6 +1,8 @@
 import { createDiscount, updateDiscount } from "./discounts";
-import { createEvent, setPayOverride, setWorking, updateEvent } from "./events";
+import { createEvent, setEventMenuItem, setPayOverride, setWorking, updateEvent } from "./events";
+import { createMenuItem, updateMenuItem } from "./menu";
 import { setPay } from "./pay";
+import { createSkill, setStaffSkill, updateSkill } from "./skills";
 import { createStaff, updateStaff } from "./staff";
 import type { MutationHandlers } from "./types";
 
@@ -15,4 +17,10 @@ export const handlers: MutationHandlers = {
   "event.setPayOverride": setPayOverride,
   "discount.create": createDiscount,
   "discount.update": updateDiscount,
+  "menu.create": createMenuItem,
+  "menu.update": updateMenuItem,
+  "skill.create": createSkill,
+  "skill.update": updateSkill,
+  "staff.setSkill": setStaffSkill,
+  "event.setMenuItem": setEventMenuItem,
 };
