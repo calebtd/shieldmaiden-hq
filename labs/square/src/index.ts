@@ -267,10 +267,9 @@ const checklist = html`
       <li>Card with a tip on Square's screen. Does the order lookup show the tip?</li>
       <li>Start a charge, then cancel in Square. What error comes back?</li>
       <li>
-        Offline: open this page once with signal (so the iPad keeps a copy), then turn on airplane
-        mode and Square's offline payments. Take a card. Does Square come back here, and with what
-        IDs? Turn signal back on and open this page: the saved results are sent to the log. Does a
-        webhook arrive, and when?
+        Offline (Square needs internet for links from this page, so this one starts in Square): turn
+        on airplane mode, open the Square app itself, take a $1 card with a note like "Ticket test".
+        Turn signal back on. When do webhooks arrive, and does the note come through?
       </li>
       <li>Same tests from an Android phone, if anyone uses one.</li>
       <li>Refund the test charges in Square afterward.</li>

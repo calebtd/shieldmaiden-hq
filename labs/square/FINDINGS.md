@@ -32,14 +32,14 @@ Phase 5 builds on. Times are America/Chicago.
 One row per checklist test. "Confirmed" means seen in the log, not taken from Square's docs.
 Tests so far ran on an iPhone (Square's records show "Caleb's iPhone"), not yet the booth iPad.
 
-| #   | Test                         | Result                    | Notes                                               |
-| --- | ---------------------------- | ------------------------- | --------------------------------------------------- |
-| 1   | Card, no tip                 | Covered by test 2         | Same flow; only the tip differs                     |
-| 2   | Card with tip                | ✅ Works (2026-11-10)     | $1 + $1 tip. Tip only via API or webhook, see below |
-| 3   | Cancel in Square             | ✅ Works (4 times)        | `payment_canceled`, our reference comes back        |
-| 4   | Offline card, then reconnect | ❌ First try: Lab's fault | Lab needed signal to open Square. Fixed; retest     |
-| 5   | Android                      |                           |                                                     |
-| 6   | Refunds done                 |                           |                                                     |
+| #   | Test                         | Result                   | Notes                                               |
+| --- | ---------------------------- | ------------------------ | --------------------------------------------------- |
+| 1   | Card, no tip                 | Covered by test 2        | Same flow; only the tip differs                     |
+| 2   | Card with tip                | ✅ Works (2026-11-10)    | $1 + $1 tip. Tip only via API or webhook, see below |
+| 3   | Cancel in Square             | ✅ Works (4 times)       | `payment_canceled`, our reference comes back        |
+| 4   | Offline card, then reconnect | ❌ Not possible via link | Square needs internet to accept the link; see below |
+| 5   | Android                      |                          |                                                     |
+| 6   | Refunds done                 |                          |                                                     |
 
 ## Callback fields (iOS) — confirmed
 
@@ -97,16 +97,20 @@ The $1 + $1 tip payment sent **five** webhooks, each with its own `event_id`:
   and skip repeated `event_id`s (Square's test event, sent twice, repeated its `event_id`).
 - Square's "Send test event" is canned 2020 sample data; ignore it for timing.
 
-## Offline
+## Offline — confirmed: the payment link needs internet
 
-- First try: the Lab built the Square link on its server, so with airplane mode on, "Open
-  Square" just showed "not connected to the internet". That was the Lab, not Square.
-- Fixed: the page now builds the link on the device, keeps an offline copy of itself, and
-  saves anything that happens offline to send when signal returns. HQ (offline-first) will
-  build the link on the device the same way.
-- Still to learn (test 4): does Square take the card offline when opened this way, what does
-  the callback contain (expected: no `transaction_id`), and how long until webhooks arrive
-  after signal returns.
-- Possible snag: if Square sends the iPad back to **Safari** rather than the home-screen web
-  app, the offline copy only exists in whichever one loaded the page with signal. Note which
-  one Square returns to.
+- With no internet, Square refuses the link: _"Point of Sale must be connected to the Internet
+  to validate your settings before taking payments."_ This happens even when the phone shows
+  Wi-Fi but the Wi-Fi has no internet. With internet, the same link works. **Square can't take
+  an offline payment started from HQ.**
+- After that error Square didn't come back to the Lab: no callback was logged for those tries.
+- Square's own app can still take offline payments when you ring them up in Square directly.
+  Those payments reach us later through webhooks or the after-event import, not the callback.
+- Lab side: the page now opens offline and saves what happened, and sends it when signal returns.
+  In the Wi-Fi-without-internet case the page thought it was online and waited on the
+  network before opening Square, so the button seemed to do nothing. The Lab now opens Square
+  immediately and sends its log in the background. HQ must do the same: never make
+  "Charge card" wait on the network.
+- Still to learn (test 4b): a card taken **directly in Square** while offline, with the ticket
+  number typed in Square's note. When signal returns, how long until webhooks arrive, and does
+  the note come through?

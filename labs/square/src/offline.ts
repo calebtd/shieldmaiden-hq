@@ -84,7 +84,9 @@ export function chargeScript(appId: string, callbackUrl: string) {
             (navigator.onLine ? "" : " · OFFLINE"),
           payload: { request: data, ios: url, userAgent: navigator.userAgent },
         });
-        flush().finally(() => (location.href = url));
+        // Open Square right away; never make the button wait on the network.
+        location.href = url;
+        void flush();
       });
     </script>`;
 }
