@@ -16,7 +16,9 @@ interface NavItem {
 const NAV: NavItem[] = [
   { to: "/", label: "Home", roles: ["owner", "checkout", "braider"] },
   { to: "/events", label: "Events", roles: ["owner"] },
+  { to: "/menu", label: "Menu", roles: ["owner"] },
   { to: "/staff", label: "Staff", roles: ["owner"] },
+  { to: "/skills", label: "Skills", roles: ["owner"] },
   { to: "/discounts", label: "Discounts", roles: ["owner"] },
 ];
 

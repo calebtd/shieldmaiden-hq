@@ -261,3 +261,37 @@ button:disabled {
   gap: 12px;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
+
+/* A compact checklist table (e.g. braiders × skills). */
+.grid-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.grid-table th,
+.grid-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  white-space: nowrap;
+}
+.grid-table th[scope="row"],
+.grid-table thead th:first-child {
+  text-align: left;
+}
+.grid-table thead th {
+  font-size: 0.85em;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+/* The table scrolls inside its box so the skill names stay in view. */
+.grid-scroll {
+  overflow: auto;
+  max-height: 70vh;
+}
+.grid-table input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+}

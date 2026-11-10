@@ -8,6 +8,7 @@ import { formatDateRange } from "../../components/format";
 import { RejectedChanges } from "../../components/RejectedChanges";
 import { CrewRow } from "./CrewRow";
 import { EventForm } from "./EventForm";
+import { EventMenuPrices } from "./EventMenuPrices";
 
 /** One event: its details, who's working, and their pay there. */
 export function EventPage() {
@@ -77,6 +78,8 @@ export function EventPage() {
           <p>Sales tax: {formatPercent(event.taxRateBps as Bps)}</p>
         </section>
       )}
+
+      <EventMenuPrices eventId={event.id} locked={locked} />
 
       <section className="stack" aria-label="Working this event">
         <h2>Working ({working.length})</h2>

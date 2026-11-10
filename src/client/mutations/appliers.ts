@@ -3,13 +3,14 @@ import type { EventStaff } from "@shared/entities/event";
 import type { MutationArgs, MutationName } from "@shared/mutations";
 import { definedOnly } from "@shared/objects";
 import type { LocalDb } from "../db/local";
+import { menuAppliers } from "./menuAppliers";
 
 /**
  * Applies a change to the device's copy right away, before the server has seen it.
  * Appliers must be safe to run more than once with the same args: after each pull the
  * still-queued changes are re-applied on top of the server's data.
  */
-type Applier<N extends MutationName> = (
+export type Applier<N extends MutationName> = (
   db: LocalDb,
   args: MutationArgs<N>,
   now: number,
@@ -17,6 +18,7 @@ type Applier<N extends MutationName> = (
 type Appliers = { [N in MutationName]: Applier<N> };
 
 export const appliers: Appliers = {
+  ...menuAppliers,
   "staff.create": async (db, args, now) => {
     const existing = await db.staff.get(args.id);
     await db.staff.put({

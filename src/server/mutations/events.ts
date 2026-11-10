@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { definedOnly } from "@shared/objects";
 import { DomainError } from "../context";
-import { events, eventStaff } from "../db/schema";
+import { eventMenu, events, eventStaff, menuItems } from "../db/schema";
 import { nextVersion } from "../sync/version";
 import { requireEditableEvent, requireStaff } from "./guards";
 import type { MutationHandler } from "./types";
@@ -65,5 +65,23 @@ export const setPayOverride: MutationHandler<"event.setPayOverride"> = async ({
       // Setting someone's pay for an event puts them on it.
       .values({ eventId, staffId, working: true, ...changes })
       .onConflictDoUpdate({ target: [eventStaff.eventId, eventStaff.staffId], set: changes }),
+  ];
+};
+
+export const setEventMenuItem: MutationHandler<"event.setMenuItem"> = async ({ db, args, now }) => {
+  await requireEditableEvent(db, args.eventId);
+  const item = await db
+    .select({ id: menuItems.id })
+    .from(menuItems)
+    .where(eq(menuItems.id, args.menuItemId))
+    .get();
+  if (!item) throw new DomainError("That menu item doesn't exist.", 404);
+  const { eventId, menuItemId, ...change } = args;
+  const changes = { ...change, updatedAt: now, version: nextVersion };
+  return [
+    db
+      .insert(eventMenu)
+      .values({ eventId, menuItemId, ...changes })
+      .onConflictDoUpdate({ target: [eventMenu.eventId, eventMenu.menuItemId], set: changes }),
   ];
 };

@@ -210,8 +210,9 @@ The iPad can sign in as a shared **Checkout** device.
 | `pay_profiles`            | staff, hourly_cents, commission_bps, tip_share_bps (one per person; locked events snapshot)    |
 | `events`                  | name, city, dates, tax_rate_bps, assignment_mode, status (planning → live → closing → locked)  |
 | `event_staff`             | event, staff, optional rate overrides                                                          |
-| `menu_items`              | kind (braid / add-on / retail), name, price_cents, est_minutes, active                         |
-| `braider_skills`          | staff, menu_item (who can do which braids)                                                     |
+| `menu_items`              | kind (braid / add-on / retail), name, price_cents, open_price, minutes, skill_ids, active      |
+| `skills`                  | name; `staff_skills` (staff, skill, has); braids list the skills they need                     |
+| `event_menu`              | event, menu item, price override (null = usual), offered                                       |
 | `waitlist_entries`        | event, customer name + phone, status, requested items, assigned staff, timestamps              |
 | `tickets`                 | event, waitlist entry, status, opened/closed times                                             |
 | `ticket_lines`            | ticket, menu item, **name + price snapshot**, qty                                              |

@@ -8,6 +8,14 @@ import {
   MAX_EVENT_DAYS,
   taxRateBpsSchema,
 } from "./entities/event";
+import {
+  descriptionSchema,
+  menuKindSchema,
+  menuNameSchema,
+  menuPriceSchema,
+  minutesSchema,
+  skillNameSchema,
+} from "./entities/menu";
 import { hourlyCentsSchema, percentBpsSchema } from "./entities/money";
 import { staffEmailSchema, staffNameSchema, staffPhoneSchema } from "./entities/staff";
 import { idSchema } from "./ids";
@@ -157,6 +165,64 @@ export const mutations = {
       rule: discountRuleSchema.optional(),
       reducesCommission: z.boolean().optional(),
       active: z.boolean().optional(),
+    }),
+  }),
+
+  /** Price-at-checkout items are stored with a price of 0. */
+  "menu.create": define({
+    roles: ["owner"],
+    args: z
+      .object({
+        id: idSchema,
+        kind: menuKindSchema,
+        name: menuNameSchema,
+        priceCents: menuPriceSchema,
+        openPrice: z.boolean().default(false),
+        minutes: minutesSchema.nullable(),
+        description: descriptionSchema.default(null),
+        skillIds: z.array(idSchema).max(20).default([]),
+      })
+      .transform((v) => ({ ...v, priceCents: v.openPrice ? 0 : v.priceCents })),
+  }),
+  "menu.update": define({
+    roles: ["owner"],
+    args: z.object({
+      id: idSchema,
+      name: menuNameSchema.optional(),
+      priceCents: menuPriceSchema.optional(),
+      openPrice: z.boolean().optional(),
+      minutes: minutesSchema.nullable().optional(),
+      description: descriptionSchema.optional(),
+      skillIds: z.array(idSchema).max(20).optional(),
+      active: z.boolean().optional(),
+    }),
+  }),
+
+  "skill.create": define({
+    roles: ["owner"],
+    args: z.object({ id: idSchema, name: skillNameSchema }),
+  }),
+  "skill.update": define({
+    roles: ["owner"],
+    args: z.object({
+      id: idSchema,
+      name: skillNameSchema.optional(),
+      active: z.boolean().optional(),
+    }),
+  }),
+  "staff.setSkill": define({
+    roles: ["owner"],
+    args: z.object({ staffId: idSchema, skillId: idSchema, has: z.boolean() }),
+  }),
+
+  /** A different price for one item at one event (null = usual), or leave it off. */
+  "event.setMenuItem": define({
+    roles: ["owner"],
+    args: z.object({
+      eventId: idSchema,
+      menuItemId: idSchema,
+      priceCents: menuPriceSchema.nullable(),
+      offered: z.boolean(),
     }),
   }),
 };

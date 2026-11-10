@@ -6,6 +6,8 @@ import { DiscountsPage } from "../features/discounts/DiscountsPage";
 import { EventPage } from "../features/events/EventPage";
 import { EventsPage } from "../features/events/EventsPage";
 import { HomePage } from "../features/home/HomePage";
+import { MenuPage } from "../features/menu/MenuPage";
+import { SkillsPage } from "../features/skills/SkillsPage";
 import { PersonaPicker } from "../features/personas/PersonaPicker";
 import { StaffPage } from "../features/staff/StaffPage";
 import { SessionProvider, useSession, useSessionContext } from "../session/session";
@@ -48,6 +50,22 @@ export function App() {
                 element={
                   <RequireRole roles={["owner"]}>
                     <DiscountsPage />
+                  </RequireRole>
+                }
+              />
+              <Route
+                path="/menu"
+                element={
+                  <RequireRole roles={["owner"]}>
+                    <MenuPage />
+                  </RequireRole>
+                }
+              />
+              <Route
+                path="/skills"
+                element={
+                  <RequireRole roles={["owner"]}>
+                    <SkillsPage />
                   </RequireRole>
                 }
               />

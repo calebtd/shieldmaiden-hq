@@ -8,6 +8,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
 import type { EventStatus } from "@shared/entities/event";
+import type { MenuKind } from "@shared/entities/menu";
 import type { Role } from "@shared/roles";
 
 /**
@@ -117,6 +118,72 @@ export const discountTypes = sqliteTable(
     version: integer("version").notNull(),
   },
   (t) => [index("discount_types_version").on(t.version)],
+);
+
+export const menuItems = sqliteTable(
+  "menu_items",
+  {
+    id: text("id").primaryKey(),
+    kind: text("kind").$type<MenuKind>().notNull(),
+    name: text("name").notNull(),
+    /** Tax-included. 0 when `open_price` (decided at checkout). */
+    priceCents: integer("price_cents").notNull(),
+    openPrice: integer("open_price", { mode: "boolean" }).notNull().default(false),
+    minutes: integer("minutes"),
+    description: text("description"),
+    /** Skill IDs needed to do it, as a JSON array. */
+    skillIds: text("skill_ids", { mode: "json" }).$type<string[]>().notNull().default([]),
+    active: integer("active", { mode: "boolean" }).notNull().default(true),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+    version: integer("version").notNull(),
+  },
+  (t) => [index("menu_items_version").on(t.version)],
+);
+
+export const skills = sqliteTable(
+  "skills",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    active: integer("active", { mode: "boolean" }).notNull().default(true),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+    version: integer("version").notNull(),
+  },
+  (t) => [index("skills_version").on(t.version)],
+);
+
+export const staffSkills = sqliteTable(
+  "staff_skills",
+  {
+    staffId: text("staff_id").notNull(),
+    skillId: text("skill_id").notNull(),
+    has: integer("has", { mode: "boolean" }).notNull(),
+    updatedAt: integer("updated_at").notNull(),
+    version: integer("version").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.staffId, t.skillId] }),
+    index("staff_skills_version").on(t.version),
+  ],
+);
+
+/** Per-event menu changes: a different price (null = usual) or not offered there. */
+export const eventMenu = sqliteTable(
+  "event_menu",
+  {
+    eventId: text("event_id").notNull(),
+    menuItemId: text("menu_item_id").notNull(),
+    priceCents: integer("price_cents"),
+    offered: integer("offered", { mode: "boolean" }).notNull(),
+    updatedAt: integer("updated_at").notNull(),
+    version: integer("version").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.eventId, t.menuItemId] }),
+    index("event_menu_version").on(t.version),
+  ],
 );
 
 /** Who changed what, for anything that touches data. */

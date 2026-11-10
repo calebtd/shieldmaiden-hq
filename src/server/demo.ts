@@ -4,12 +4,16 @@ import type { Db } from "./context";
 import {
   auditLog,
   discountTypes,
+  eventMenu,
   events,
   eventStaff,
+  menuItems,
   mutationsApplied,
   payProfiles,
   serverMeta,
+  skills,
   staff,
+  staffSkills,
 } from "./db/schema";
 import { bumpVersion, nextVersion } from "./sync/version";
 
@@ -36,6 +40,22 @@ const DEMO_DISCOUNTS = [
   { name: "Friends & Family", kind: "percent", percentBps: 2000, amountCents: null },
   { name: "Referral", kind: "amount", percentBps: null, amountCents: 1000 },
   { name: "Comp", kind: "percent", percentBps: 10000, amountCents: null },
+] as const;
+
+/** A small sample menu. Sigrun and Ingrid can do Valkyrie (it needs Dutch); Liv can't yet. */
+const DEMO_SKILL = { id: demoId(300), name: "Dutch" };
+const DEMO_MENU = [
+  {
+    kind: "braid",
+    name: "Valkyrie (Full)",
+    priceCents: 7000,
+    minutes: 35,
+    skillIds: [demoId(300)],
+  },
+  { kind: "braid", name: "Shieldmaiden", priceCents: 4000, minutes: 15, skillIds: [] },
+  { kind: "braid", name: "Battle Braid", priceCents: 2000, minutes: 10, skillIds: [] },
+  { kind: "addon", name: "Charms (3)", priceCents: 300, minutes: null, skillIds: [] },
+  { kind: "retail", name: "Satin Bonnet", priceCents: 1500, minutes: null, skillIds: [] },
 ] as const;
 
 /** A sample upcoming event about two months out, so the demo always has one to look at. */
@@ -110,6 +130,40 @@ export async function seedDemoDataIfEmpty(db: Db): Promise<void> {
           })
           .onConflictDoNothing(),
       ),
+    db
+      .insert(skills)
+      .values({ ...DEMO_SKILL, active: true, createdAt: now, updatedAt: now, version: nextVersion })
+      .onConflictDoNothing(),
+    ...people
+      .filter((p) => p.name === "Sigrun" || p.name === "Ingrid")
+      .map((p) =>
+        db
+          .insert(staffSkills)
+          .values({
+            staffId: p.id,
+            skillId: DEMO_SKILL.id,
+            has: true,
+            updatedAt: now,
+            version: nextVersion,
+          })
+          .onConflictDoNothing(),
+      ),
+    ...DEMO_MENU.map((m, i) =>
+      db
+        .insert(menuItems)
+        .values({
+          id: demoId(400 + i),
+          ...m,
+          skillIds: [...m.skillIds],
+          openPrice: false,
+          description: null,
+          active: true,
+          createdAt: now,
+          updatedAt: now,
+          version: nextVersion,
+        })
+        .onConflictDoNothing(),
+    ),
     ...DEMO_DISCOUNTS.map((d, i) =>
       db
         .insert(discountTypes)
@@ -139,6 +193,10 @@ export async function resetDemoData(db: Db): Promise<void> {
     db.delete(events),
     db.delete(eventStaff),
     db.delete(discountTypes),
+    db.delete(menuItems),
+    db.delete(skills),
+    db.delete(staffSkills),
+    db.delete(eventMenu),
     db.delete(mutationsApplied),
     db.delete(auditLog),
     db.update(serverMeta).set({ value: epoch }).where(eq(serverMeta.key, "epoch")),

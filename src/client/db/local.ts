@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable } from "dexie";
 import type { DiscountType } from "@shared/entities/discount";
 import type { EventStaff, ShowEvent } from "@shared/entities/event";
+import type { EventMenu, MenuItem, Skill, StaffSkill } from "@shared/entities/menu";
 import type { PayProfile } from "@shared/entities/pay";
 import type { Staff } from "@shared/entities/staff";
 import type { MutationName } from "@shared/mutations";
@@ -40,6 +41,12 @@ export class LocalDb extends Dexie {
   /** Keyed by [eventId+staffId]. */
   eventStaff!: Dexie.Table<EventStaff, [string, string]>;
   discountTypes!: EntityTable<DiscountType, "id">;
+  menuItems!: EntityTable<MenuItem, "id">;
+  skills!: EntityTable<Skill, "id">;
+  /** Keyed by [staffId+skillId]. */
+  staffSkills!: Dexie.Table<StaffSkill, [string, string]>;
+  /** Keyed by [eventId+menuItemId]. */
+  eventMenu!: Dexie.Table<EventMenu, [string, string]>;
   outbox!: EntityTable<OutboxItem, "seq">;
   rejections!: EntityTable<Rejection, "id">;
   meta!: EntityTable<MetaRow, "key">;
@@ -62,6 +69,14 @@ export class LocalDb extends Dexie {
         discountTypes: "id, active",
       })
       .upgrade((tx) => tx.table<MetaRow, string>("meta").delete("cursor"));
+    this.version(3)
+      .stores({
+        menuItems: "id, kind",
+        skills: "id",
+        staffSkills: "[staffId+skillId], staffId, skillId",
+        eventMenu: "[eventId+menuItemId], eventId",
+      })
+      .upgrade((tx) => tx.table<MetaRow, string>("meta").delete("cursor"));
   }
 }
 
@@ -71,4 +86,8 @@ export const SYNCED_TABLES = [
   "events",
   "eventStaff",
   "discountTypes",
+  "menuItems",
+  "skills",
+  "staffSkills",
+  "eventMenu",
 ] as const satisfies readonly SyncedTable[];
