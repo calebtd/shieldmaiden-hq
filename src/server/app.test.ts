@@ -2,7 +2,8 @@ import { env } from "cloudflare:workers";
 import { beforeAll, describe, expect, it } from "vitest";
 import { newId } from "@shared/ids";
 import { createDb } from "./context";
-import { resetDemoData } from "./demo";
+import { staff } from "./db/schema";
+import { resetDemoData, seedDemoDataIfEmpty } from "./demo";
 import { TestClient } from "./test/client";
 
 describe("health", () => {
@@ -204,5 +205,12 @@ describe("demo reset", () => {
     const pulled = await after.pull();
     expect(pulled.epoch).not.toBe(before.epoch);
     expect(pulled.changes.staff.length).toBe(5);
+  });
+
+  it("seeds once when several people open the picker at the same moment", async () => {
+    const db = createDb(env.DB);
+    await db.delete(staff);
+    await Promise.all([1, 2, 3].map(() => seedDemoDataIfEmpty(db)));
+    expect(await db.select().from(staff)).toHaveLength(5);
   });
 });
