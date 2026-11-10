@@ -17,6 +17,8 @@ export interface StarterItem {
   description?: string;
   /** Skill names (see STARTER_SKILLS) a braider needs. */
   skills?: string[];
+  /** Load it turned off (e.g. sold out). */
+  off?: boolean;
 }
 
 export const STARTER_SKILLS = [
@@ -58,17 +60,17 @@ const retail = (name: string, price: number, description?: string): StarterItem 
 });
 
 export const STARTER_MENU: StarterItem[] = [
-  braid("Full Valkyrie", 70, 35),
-  braid("Little Valkyrie", 55, 25),
-  braid("Shieldmaiden", 40, 15),
-  braid("Double Shieldmaiden", 50, 20),
+  braid("Full Valkyrie", 70, 35, ["5 Strand", "Cornrows"]),
+  braid("Little Valkyrie", 55, 25, ["5 Strand", "Cornrows"]),
+  braid("Shieldmaiden", 40, 15, ["5 Strand"]),
+  braid("Double Shieldmaiden", 50, 20, ["5 Strand"]),
   braid("Warrior Wolftail", 35, 20, ["Wolftail"]),
   braid("Twist of Fae", 30, 15, ["Twist of Fae"]),
   braid("Maiden's Heart", 30, 15, ["Maiden's Heart"]),
-  braid("Buccaneer Braids", 30, 20),
-  braid("Battle Buns", 30, 15),
-  braid("Double Battle Braids", 25, 15),
-  braid("Battle Braid", 20, 10),
+  braid("Buccaneer Braids", 30, 20, ["Cornrows"]),
+  braid("Battle Buns", 30, 15, ["Dutch"]),
+  braid("Double Battle Braids", 25, 15, ["Dutch"]),
+  braid("Battle Braid", 20, 10, ["Dutch"]),
   braid("The Crown", 25, 10, ["Crown"]),
   braid("Katniss", 20, 10),
   braid("Beard Braids", 10, 5, ["Beard"]),
@@ -78,20 +80,22 @@ export const STARTER_MENU: StarterItem[] = [
   braid("Head Paint", 10, 10),
   braid("Braider's Pick", null, undefined, undefined, "Mystery braid. Ask about pricing."),
 
-  addon("Charms (3)", 3),
-  addon("White beads (3)", 2),
-  addon("Sea Treasures upgrade", 5, "Upgrade Plunder and Pearl to sea treasures."),
-  addon("Viking Charms", null),
-  addon("Ribbon", null),
-  addon("Extra Charms", null),
-  addon("Tinsel", null),
-  addon("Leather", null),
-  addon("Beads", null),
-  addon("Glitter", null),
+  // Prices from Square's add-on screen (Nov 10); the price board's "3/$3" and "3/$2".
+  addon("Charms", 3, "3 charms"),
+  addon("Extra Charms", 3),
+  addon("Viking Charms", 5),
+  {
+    ...addon("Tinsel", null),
+    off: true,
+    description: "Sold out in Square. Add a price before turning on.",
+  },
+  addon("Leather", 8),
+  addon("Ribbon", 2),
+  addon("Beads", 2, "3 white beads"),
+  addon("Sea Treasures", 5, "Upgrade Plunder and Pearl to sea treasures."),
+  addon("Glitter", 2),
+  addon("Tangled, long, difficult", 5, "Extra for hair that takes longer. One per braid."),
   addon("Extra cornrow", null, "Square had 1 to 4 extra cornrows."),
-  addon("Extra difficulty: tangled", null),
-  addon("Extra difficulty: long", null),
-  addon("Extra difficulty: difficult", null),
 
   retail(
     "Druid/Fairy charm pack",

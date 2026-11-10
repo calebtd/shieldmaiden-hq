@@ -36,6 +36,14 @@ test("the owner loads the current menu and adds an item", async ({ page }) => {
   await expect(braids.getByRole("article").filter({ hasText: "The Crown" })).toContainText(
     "Needs Crown",
   );
+  await expect(braids.getByRole("article").filter({ hasText: "Full Valkyrie" })).toContainText(
+    "Needs 5 Strand + Cornrows",
+  );
+  const addons = page.getByRole("region", { name: "Add-ons & enchantments" });
+  await expect(addons.getByRole("article").filter({ hasText: "Leather" })).toContainText("$8.00");
+  await expect(addons.getByRole("article").filter({ hasText: "Tinsel" })).toContainText(
+    "Turned off",
+  );
   const retail = page.getByRole("region", { name: "Retail" });
   await expect(retail.getByRole("article").filter({ hasText: "Pit kit" })).toContainText(
     "bobby pins",
