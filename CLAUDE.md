@@ -43,3 +43,53 @@ The full product plan is in `docs/PLAN.md`. Read it before starting a phase.
 `local` (persona picker), `dev`/`production` (Cloudflare Access), `demo` (persona picker,
 nightly reset). Each has its own D1 database. Config lives in `wrangler.jsonc` and is validated
 by `src/server/config.ts`.
+
+## Working agreements (read before doing anything)
+
+Several Claude sessions work on this repo in parallel. Each owns one area (see "Workstreams").
+
+- **Branches and merging:** work on a branch named for your workstream. When `pnpm check`
+  and `pnpm test:e2e` pass, merge into `main` yourself (`git merge --no-ff`) and push; CI then
+  deploys **dev**. Always `git fetch origin main` and merge it into your branch first; if
+  another session's changes conflict, resolve carefully and re-run the checks.
+  Never push to `main` with failing checks. Never deploy **demo** or **production**; the
+  owner runs those from GitHub Actions.
+- **Migrations:** only add (never rename/drop). If two branches both add a migration, the
+  second to merge must regenerate its migration so numbers don't collide.
+- **Cloudflare:** the session's network proxy injects a Cloudflare API token for
+  `api.cloudflare.com` (use `CLOUDFLARE_API_TOKEN=proxy-injected`,
+  `CLOUDFLARE_ACCOUNT_ID=76433d69bd581192e62cf8fa2c58ec37`). Rules:
+  - Read before writing; only create resources named `shieldmaiden-…` / `Shieldmaiden …` or
+    on our subdomains; never modify or delete anything else (the account also has
+    `smb-waitlist`, `crew-time-clock`, `autumn-hill-f659` and their D1/Access, which are off limits).
+  - Anything that changes **who can sign in** (Access apps/policies) needs the owner's explicit
+    OK in chat first.
+  - `wrangler deploy` of the main app fails from a session (the proxy replaces Wrangler's
+    asset-upload token). Deploy the main app through CI by merging to `main`. Workers without
+    static assets (the Square Lab) can be deployed from a session.
+  - Never ask for secrets in chat. Worker secrets are added by the owner in the dashboard.
+- **Who's who:** owner sign-in `smbraidin@gmail.com` (also the shared checkout iPad);
+  developer `calebdillenbeck@gmail.com` (owner on dev); Makayla `makayla.dilly@gmail.com`
+  (braider). Other braiders: Becca, Malia, Savanah; Amren is checkout (emails not yet given).
+- **Talking to the owner:** plain language, no jargon. They are not a developer by trade.
+
+## Current state (keep this section up to date when you merge)
+
+- Live: `dev.shieldmaiden.hair` (auto from `main`), `square-lab.shieldmaiden.hair`.
+  Not yet deployed: demo, production.
+- Done: Phase 0 (foundation, sync, Access sign-in, staff screen with edit/turn off, sign out,
+  live identity on every sync, company palette), Staff screen mirrors the Cloudflare sign-in
+  list (needs the `ACCESS_ADMIN_TOKEN` Worker secret), Square Lab (needs
+  `SQUARE_ACCESS_TOKEN` secret and the callback URL registered in Square).
+- Square facts confirmed: the Point of Sale API has no sandbox; tests use small real charges.
+  The callback returns an order ID (`transaction_id`) and a device ID; tips come from the
+  Orders API.
+
+## Workstreams
+
+1. **Phase 1, setup data** (`docs/PLAN.md` §7): pay profiles + per-event overrides, braid menu
+   (base braids with price/time, add-ons, retail), skills, discount types, events with tax rate.
+2. **Square Lab & integration**: help the owner run the Lab tests, add the webhook sign-in
+   exception (owner approval needed), record findings in `labs/square/FINDINGS.md`.
+3. **Ops**: demo/production go-live checklist, nightly D1 backups to R2, monitoring/error
+   visibility, keeping README accurate.
