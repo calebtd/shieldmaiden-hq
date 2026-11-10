@@ -1,58 +1,123 @@
-.topbar {
+/*
+ * App frame: a sidebar on iPad and computer screens (768px and wider). On phones the
+ * sidebar becomes a drawer opened from the top bar.
+ */
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  align-items: start;
+}
+.shell > .page {
+  width: 100%;
+  align-content: start;
+}
+
+.sidebar {
   background: var(--topbar-bg);
   color: var(--topbar-ink);
-  padding-top: env(safe-area-inset-top);
   position: sticky;
   top: 0;
-  z-index: 10;
-}
-.topbar-inner {
-  max-width: 1080px;
-  margin: 0 auto;
-  padding: 10px max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left));
+  height: 100vh;
+  overflow-y: auto;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 16px;
+  flex-direction: column;
+  gap: 20px;
+  padding: max(16px, env(safe-area-inset-top)) 12px max(16px, env(safe-area-inset-bottom))
+    max(12px, env(safe-area-inset-left));
 }
 .brand {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 4px 8px;
 }
-.nav {
-  display: flex;
-  gap: 4px;
+.side-nav {
+  display: grid;
+  gap: 16px;
   flex: 1;
-  overflow-x: auto;
+  align-content: start;
 }
-.nav a {
+.side-group {
+  display: grid;
+  gap: 2px;
+}
+.side-heading {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+  padding: 4px 12px;
+}
+.side-nav a {
   color: var(--topbar-ink);
   opacity: 0.85;
   text-decoration: none;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 8px;
   font-weight: 500;
-  white-space: nowrap;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
-.nav a.active {
+.side-nav a:hover {
+  opacity: 1;
+}
+.side-nav a.active {
   background: var(--topbar-active);
   color: #fff;
   opacity: 1;
 }
-.topbar .who .muted,
-.topbar .ghost {
+.side-footer {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  padding: 12px 8px 0;
+  border-top: 1px solid rgb(255 255 255 / 0.15);
+}
+.sidebar .ghost,
+.phone-bar .ghost {
   color: var(--topbar-ink);
 }
-.who {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+
+.phone-bar,
+.scrim {
+  display: none;
 }
-@media (max-width: 900px) {
-  .nav {
-    order: 3;
-    flex-basis: 100%;
+
+@media (max-width: 767px) {
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+  .phone-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--topbar-bg);
+    color: var(--topbar-ink);
+    padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+  }
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(280px, 85vw);
+    z-index: 30;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  .sidebar.open {
+    transform: none;
+  }
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: rgb(0 0 0 / 0.4);
   }
 }

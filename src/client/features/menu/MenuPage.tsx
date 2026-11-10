@@ -4,7 +4,7 @@ import { canDo } from "@domain/menu";
 import { formatCents, type Cents } from "@domain/money";
 import { MENU_KIND_LABELS, MENU_KINDS, type MenuItem, type Skill } from "@shared/entities/menu";
 import type { Staff } from "@shared/entities/staff";
-import { useDb, useSyncEngine } from "../../app/sync";
+import { useDb, useSyncEngine, useSyncState } from "../../app/sync";
 import { RejectedChanges } from "../../components/RejectedChanges";
 import { loadStarterMenu } from "./loadStarter";
 import { MenuItemForm } from "./MenuItemForm";
@@ -18,6 +18,8 @@ export function describePrice(item: { priceCents: number; openPrice: boolean }):
 
 export function MenuPage() {
   const db = useDb();
+  // Until the first sync, an empty list may just mean "not downloaded yet".
+  const synced = useSyncState().lastSyncedAt !== null;
   const data = useLiveQuery(async () => {
     const [items, skills, staff, staffSkills] = await Promise.all([
       db.menuItems.toArray(),
@@ -42,11 +44,11 @@ export function MenuPage() {
 
   return (
     <>
-      <h1>Menu</h1>
+      <h1>Braid menu</h1>
       <p className="muted">Prices include sales tax, just like the price board.</p>
       <RejectedChanges />
       {/* A brand-new (or demo) menu: offer the real one. */}
-      {items.length < 10 && <StarterPanel />}
+      {items.length < 10 && synced && <StarterPanel />}
       <MenuItemForm skills={skills} />
       {MENU_KINDS.map((kind) => {
         const list = items
