@@ -55,3 +55,18 @@ test("braiders can't reach owner screens", async ({ page }) => {
   await page.goto("/staff");
   await expect(page).toHaveURL(/\/$/);
 });
+
+test("on a phone, the screens list opens from the top bar and closes after picking one", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.getByRole("button", { name: /Astrid/ }).click();
+  const staffLink = page.getByRole("link", { name: "Staff" });
+  await expect(staffLink).not.toBeInViewport();
+  await page.getByRole("button", { name: "☰ Screens" }).click();
+  await expect(staffLink).toBeInViewport();
+  await staffLink.click();
+  await expect(page.getByRole("heading", { name: "Staff" })).toBeVisible();
+  await expect(staffLink).not.toBeInViewport();
+});

@@ -12,7 +12,7 @@ async function signInAsOwner(page: Page) {
 
 /** Loads the real menu if this database still has only the small demo one. */
 async function ensureFullMenu(page: Page) {
-  await page.getByRole("link", { name: "Menu" }).click();
+  await page.getByRole("link", { name: "Braid menu" }).click();
   await expect(page.getByRole("heading", { name: "Add to the menu" })).toBeVisible();
   const load = page.getByRole("button", { name: "Load our current menu" });
   if (await load.isVisible()) {

@@ -90,6 +90,8 @@ Several Claude sessions work on this repo in parallel. Each owns one area (see "
   library, price board and skills sheet (Nov 10) are in
   `src/client/features/menu/starterMenu.ts`, loaded with buttons on Menu and Skills. Left
   for Phase 3: snapshotting rates on lock, bonuses (adjustments), per-ticket price changes.
+- Layout: sidebar (drawer from "☰ Screens" on phones under 768px). Add screens to the
+  grouped `NAV` list in `src/client/components/Layout.tsx`.
 - Ops (`ops-golive`): nightly D1 → R2 backup job (`src/server/ops/`, cron `41 8 * * *` on every
   site, keeps prod 30 / dev 14 / demo 3 days), owner-only **System health** panel on Home
   (`/api/ops/health`, `/api/ops/backup`; server errors recorded in `server_meta`),
