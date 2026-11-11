@@ -15,11 +15,15 @@ async function ensureFullMenu(page: Page) {
   await page.getByRole("link", { name: "Braid menu" }).click();
   await expect(page.getByRole("heading", { name: "Add to the menu" })).toBeVisible();
   const load = page.getByRole("button", { name: "Load our current menu" });
+  const loaded = page.getByRole("article").filter({ hasText: "Full Valkyrie" });
+  // The load button only appears once the first sync has finished, so wait until the
+  // screen shows one or the other before deciding.
+  await expect(load.or(loaded)).toBeVisible({ timeout: 15_000 });
   if (await load.isVisible()) {
     await load.click();
     await expect(load).toHaveCount(0, { timeout: 15_000 });
   }
-  await expect(page.getByRole("article").filter({ hasText: "Full Valkyrie" })).toBeVisible();
+  await expect(loaded).toBeVisible();
 }
 
 test("the owner loads the current menu and adds an item", async ({ page }) => {
