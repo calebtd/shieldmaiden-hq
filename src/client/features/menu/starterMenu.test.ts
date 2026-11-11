@@ -41,4 +41,13 @@ describe("starter menu", () => {
     expect(needs("Buccaneer Braids")).toEqual(["Cornrows"]);
     expect(needs("Battle Braid")).toEqual(["Dutch"]);
   });
+
+  it("has the owner's add-on prices (Nov 11)", () => {
+    const price = (name: string) =>
+      STARTER_MENU.find((i) => i.kind === "addon" && i.name === name)?.price;
+    expect(price("Extra cornrow")).toBe(10);
+    // Only Tinsel (sold out) still has no price.
+    const unpriced = STARTER_MENU.filter((i) => i.kind === "addon" && i.price === null);
+    expect(unpriced.map((i) => i.name)).toEqual(["Tinsel"]);
+  });
 });
