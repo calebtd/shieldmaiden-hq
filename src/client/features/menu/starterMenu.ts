@@ -95,7 +95,7 @@ export const STARTER_MENU: StarterItem[] = [
   addon("Sea Treasures", 5, "Upgrade Plunder and Pearl to sea treasures."),
   addon("Glitter", 2),
   addon("Tangled, long, difficult", 5, "Extra for hair that takes longer. One per braid."),
-  addon("Extra cornrow", null, "Square had 1 to 4 extra cornrows."),
+  addon("Extra cornrow", 10, "$10 each. Add one per extra row (Square offered 1 to 4)."),
 
   retail(
     "Druid/Fairy charm pack",
